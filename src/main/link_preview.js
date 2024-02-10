@@ -4,12 +4,27 @@
  * @LastEditTime: 2024-02-03 20:46:48
  */
 const axios = require('axios');
+const iconv = require('iconv-lite');
 
 async function getHtml(url) {
-    const response = await axios.get(url);
-    const html = response.data;
-    const headContent = html.match(/<head([\s\S]*?)\/head>/i)[1];
-    return headContent
+    let decodedHtml = '';
+    await axios({
+        method: 'get',
+        url: url,
+        responseType: 'arraybuffer', // 设置响应类型为二进制数据
+        })
+        .then(response => {
+            const charType = response.headers['content-type'].match(/charset=(.*)/)[1];
+            // 将二进制数据转换为指定编码格式的字符串
+            decodedHtml = iconv.decode(response.data, charType);
+        })
+        .catch(error => {
+            console.error('Error fetching data: ', error);
+        });
+    // console.log(decodedHtml);
+    const headContent = decodedHtml.match(/<head([\s\S]*?)\/head>/i)[1];
+    // console.log(headContent);
+    return headContent;
 }
 
 async function getLinkPreview(url) {
