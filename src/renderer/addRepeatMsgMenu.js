@@ -80,12 +80,9 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
         const qrcode = qrcode_ele.cloneNode(true);
         qrcode.addEventListener('click', async () => {
             // 关闭右键菜单
-            qContextMenu.remove()
-            const content = await decodeQR(message_element)
-            Swal.fire({
-                title: '识别结果',
-                html: `<input id="swal-input1" class="swal2-input" value="${content}">`,
-            });
+            qContextMenu.remove();
+            const content = await decodeQR(message_element);
+            qqpromote.showQrContent(content);
         })
         if (classList?.[0] === "image-content") {
             qContextMenu.insertBefore(qrcode, qContextMenu.firstChild);
