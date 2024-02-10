@@ -7,23 +7,19 @@ const axios = require('axios');
 const iconv = require('iconv-lite');
 
 async function getHtml(url) {
-    let decodedHtml = '';
-    await axios({
-        method: 'get',
-        url: url,
-        responseType: 'arraybuffer', // 设置响应类型为二进制数据
-        })
-        .then(response => {
-            const charType = response.headers['content-type'].match(/charset=(.*)/)[1];
-            // 将二进制数据转换为指定编码格式的字符串
-            decodedHtml = iconv.decode(response.data, charType);
-        })
-        .catch(error => {
-            console.error('Error fetching data: ', error);
-        });
-    // console.log(decodedHtml);
-    const headContent = decodedHtml.match(/<head([\s\S]*?)\/head>/i)[1];
-    // console.log(headContent);
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    let u8Array = ["utf8", "UTF8", "utf-8", "UTF-8"];
+    let charType = 'utf-8';
+    let htmlData = response.data.toString();
+    let headContent = htmlData.match(/<head([\s\S]*?)\/head>/i)[0];
+    if (response.headers['content-type'].includes('charset')) {
+        charType = response.headers['content-type'].match(/charset=(.*)/i)[1];
+    } else if (headContent.includes('charset=')) {
+        charType = headContent.match(/charset="(.*)"/i)[1];
+    }
+    if (charType !== "utf-8" && u8Array.indexOf(charType) == -1 && iconv.encodingExists(charType)) {
+        headContent = iconv.decode(response.data, charType).match(/<head([\s\S]*?)\/head>/i)[0];
+    }
     return headContent;
 }
 

@@ -4,8 +4,7 @@
   "description": "该插件需要安装前置插件[LLAPI](https://github.com/Night-stars-1/LiteLoaderQQNT-Plugin-LLAPI)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "link_preview_test": "node ./testScript/printLink_preview.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
