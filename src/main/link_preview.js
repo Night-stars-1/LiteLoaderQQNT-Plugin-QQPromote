@@ -4,12 +4,23 @@
  * @LastEditTime: 2024-02-03 20:46:48
  */
 const axios = require('axios');
+const iconv = require('iconv-lite');
 
 async function getHtml(url) {
-    const response = await axios.get(url);
-    const html = response.data;
-    const headContent = html.match(/<head([\s\S]*?)\/head>/i)[1];
-    return headContent
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    let u8Array = ["utf8", "UTF8", "utf-8", "UTF-8"];
+    let charType = 'utf-8';
+    let htmlData = response.data.toString();
+    let headContent = htmlData.match(/<head([\s\S]*?)\/head>/i)[0];
+    if (response.headers['content-type'].includes('charset')) {
+        charType = response.headers['content-type'].match(/charset=(.*)/i)[1];
+    } else if (headContent.includes('charset=')) {
+        charType = headContent.match(/charset="(.*)"/i)[1];
+    }
+    if (charType !== "utf-8" && u8Array.indexOf(charType) == -1 && iconv.encodingExists(charType)) {
+        headContent = iconv.decode(response.data, charType).match(/<head([\s\S]*?)\/head>/i)[0];
+    }
+    return headContent;
 }
 
 async function getLinkPreview(url) {
