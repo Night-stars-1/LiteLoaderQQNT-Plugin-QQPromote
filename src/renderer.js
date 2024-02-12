@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-09 00:35:45
- * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-03 20:12:24
+* LastEditors: Night-stars-1 nujj1042633805@gmail.com
+* LastEditTime: 2024-02-12 17:33:49
  */
 import { domUpMessages } from "./renderer/domUpMessages.js"
 import { changeHref, domUpNavItem } from "./renderer/changeHref.js"
@@ -9,6 +9,7 @@ import { userLogin } from "./renderer/userLogin.js"
 import { setMessage } from "./renderer/setMessage.js"
 import { addrepeatmsg_menu } from "./renderer/addRepeatMsgMenu.js"
 import { setting_vue } from "./renderer/setVue.js"
+import { hookVue3 } from "./renderer/vue.js"
 
 const updateStyle = qqpromote.updateStyle;
 const updateWebPageStyle = qqpromote.updateWebPageStyle;
@@ -17,6 +18,7 @@ let login_time = 3;
 
 async function onLoad() {
     const setting_data = await qqpromote.getSettings()
+    setting_data?.setting.message_merging ? document.body.classList.add('message_merging'):document.body.classList.remove('message_merging')
     const plugin_path = LiteLoader.plugins.qqpromote.path.plugin;
     const script = document.createElement("script");
     script.id = "sweetalert2"
@@ -122,6 +124,7 @@ async function onSettingWindowCreated(view){
     })
 }
 
+hookVue3()
 onLoad()
 
 export {

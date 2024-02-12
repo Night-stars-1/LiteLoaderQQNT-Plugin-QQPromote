@@ -2,7 +2,7 @@
  * @Author: Night-stars-1 nujj1042633805@gmail.com
  * @Date: 2023-08-12 15:41:47
  * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-03 21:10:22
+ * @LastEditTime: 2024-02-07 15:53:53
  * @Description: 
  * 
  * Copyright (c) 2023 by Night-stars-1, All Rights Reserved. 
@@ -14,6 +14,7 @@ const { onLoad, setSettings } = require("./main/onLoad.js");
 const { output, replaceArk, getEmojis } = require("./main/utils.js");
 
 let emojiCallbackId = "";
+let lastSenderUid = "";
 
 function onBrowserWindowCreated(window) {
     const pluginDataPath = LiteLoader.plugins.qqpromote.path.data;
@@ -30,6 +31,7 @@ function onBrowserWindowCreated(window) {
             const msgList = args?.[1]?.msgList;
             // 替换小程序卡片
             msgList.forEach((msgItem) => {
+                if (!msgItem.qqpromote) msgItem.qqpromote = {}
                 let msg_seq = msgItem.msgSeq;
                 msgItem.elements.forEach((msgElement) => {
                     // output(msgItem.msgType, msgItem.subMsgType, msgElement.grayTipElement)
@@ -77,7 +79,10 @@ function onBrowserWindowCreated(window) {
                         };
                     }
                 });
+                msgItem.qqpromote.chatType = lastSenderUid === msgItem.senderUid? 'child':'main'
+                lastSenderUid = msgItem.senderUid
             });
+            //msgList.reverse();
         } else if (args?.[1]?.[0]?.cmdName === "nodeIKernelUnitedConfigListener/onUnitedConfigUpdate" && data.setting.not_updata) {
             // 屏蔽更新
             args[1][0].payload.configData.content = ""

@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-02-03 16:15:39
- * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-03 20:46:48
+* LastEditors: Night-stars-1 nujj1042633805@gmail.com
+* LastEditTime: 2024-02-12 16:06:07
  */
 const axios = require('axios');
 
@@ -19,7 +19,6 @@ async function getLinkPreview(url) {
      * @type {string[]} meta信息
      */
     const metaMatches = headContent.match(/[<meta[\s\S]*?>|<title(.*)\/title>]/ig);
-    console.timeLog('headContent')
     metaMatches.forEach(element => {
         element.includes('</title>') && (data.title = element.match(/[<title>]?(.*)<\/title>/)[1])
             || element.includes('property="og:title"') && (data.title = element.match(/content="([\s\S]*)"/)[1])

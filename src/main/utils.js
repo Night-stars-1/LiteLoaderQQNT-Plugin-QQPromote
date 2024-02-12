@@ -80,7 +80,9 @@ const defaultSettings = {
                 name: '新年大龙',
                 value: false
             }
-        }
+        },
+        message_merging: false,
+        message_avatar_float: false
     }
 }
 

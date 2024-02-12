@@ -92,7 +92,7 @@ function onLoad() {
             let data = {};
             try {
                 data = await getUrlData(url)
-                if (!data) {
+                if (data) {
                     data = await getLinkPreview(url);
                     setUrlData(url, data)
                 }

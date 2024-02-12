@@ -49,7 +49,7 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
     if (setting_data?.setting.chatgpt) {
         const chatgpt_msg = chatgpt_ele.cloneNode(true);
         chatgpt_msg.addEventListener('click', async () => {
-            let msg = await chatgpt(content, setting_data.setting)
+            const msg = await chatgpt(content, setting_data.setting)
             if (setting_data?.setting.chatgpt_add_reply) {
                 await LLAPI.set_editor(msg)
                 qContextMenu.childNodes.forEach((element) => {
