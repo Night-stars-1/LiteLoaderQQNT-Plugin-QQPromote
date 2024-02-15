@@ -29,6 +29,7 @@ const defaultSettings = {
         chatgpt_key: "",
         chatgpt_url: "https://api.openai.com/v1/chat/completions",
         chatgpt_model: "gpt-3.5-turbo",
+        chatgpt_role: "",
         sidebar_list: {},
         messagebar_list: {},
         upbar_list: {},
