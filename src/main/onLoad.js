@@ -123,16 +123,23 @@ function onLoad() {
         "LiteLoader.qqpromote.chatgpt",
         async (event, content, data) => {
             try {
+                const messages = [
+                    {
+                        'role': 'user',
+                        'content': content
+                    }
+                ];
+                if (data.chatgpt_role.trim() !== '') {
+                    messages.unshift({
+                        'role': 'system',
+                        'content': data.chatgpt_role
+                    });
+                }
                 const response = await axios.post(
                     data.chatgpt_url,
                     {
                         'model': data.chatgpt_model,
-                        'messages': [
-                            {
-                                'role': 'user',
-                                'content': content
-                            }
-                        ],
+                        'messages': messages,
                         'temperature': 0.7
                     },
                     {
