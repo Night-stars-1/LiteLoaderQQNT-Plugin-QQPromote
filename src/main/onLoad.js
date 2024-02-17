@@ -1,4 +1,4 @@
-const { ipcMain, shell, BrowserWindow } = require("electron");
+const { ipcMain, shell, BrowserWindow, dialog } = require("electron");
 const { tencent_tmt } = require(`./tencent_tmt.js`);
 const { baidu_fanyi } = require(`./baidu_fanyi.js`);
 const { output, getAmr, debounce } = require(`./utils.js`);
@@ -176,6 +176,23 @@ function onLoad() {
             } catch (error) {
                 return false
             }
+        }
+    );
+    // 显示二维码内容
+    ipcMain.handle(
+        "LiteLoader.qqpromote.showQrContent",
+        (event, content) => {
+            const win = new BrowserWindow({
+                width: 400,
+                height: 300,
+                show: true,
+                autoHideMenuBar: true,
+                webPreferences: {
+                  sandbox: true
+                },
+                title: "二维码内容"
+              });
+            win.loadURL(`data:text/html;charset=utf-8,<pre>${content}</pre>`);
         }
     );
 }
