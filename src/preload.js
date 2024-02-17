@@ -54,5 +54,9 @@ contextBridge.exposeInMainWorld("qqpromote", {
     showQrContent: (content) => ipcRenderer.invoke( // TODO: 使用更加具体的 API 进行替换(目前API仅开发使用)
         "LiteLoader.qqpromote.showQrContent",
         content
-    )
+    ),
+    showMessageBox: (options) => ipcRenderer.invoke(
+        "LiteLoader.qqpromote.showMessageBox",
+        options
+    ),
 });
