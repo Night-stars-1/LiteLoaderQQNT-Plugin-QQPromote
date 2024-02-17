@@ -188,6 +188,13 @@ function onLoad() {
             win.loadURL(`data:text/html;charset=utf-8,<pre>${content}</pre>`);
         }
     );
+    // 显示提示信息
+    ipcMain.handle(
+        "LiteLoader.qqpromote.showMessageBox",
+        async (event, options) => {
+            return await dialog.showMessageBox(options);
+        }
+    );
 }
 
 module.exports = {
