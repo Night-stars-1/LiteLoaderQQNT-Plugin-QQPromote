@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-02-03 16:15:39
 * LastEditors: Night-stars-1 nujj1042633805@gmail.com
-* LastEditTime: 2024-02-12 16:06:07
+* LastEditTime: 2024-02-19 19:15:33
  */
 const axios = require('axios');
 const iconv = require('iconv-lite');
@@ -17,7 +17,7 @@ async function getHtml(url) {
     } else if (headContent.includes('charset=')) {
         charType = headContent.match(/charset="(.*)"/i)[1];
     }
-    if (charType !== "utf-8" && u8Array.indexOf(charType) == -1 && iconv.encodingExists(charType)) {
+    if (u8Array.indexOf(charType) == -1 && iconv.encodingExists(charType)) {
         headContent = iconv.decode(response.data, charType).match(/<head([\s\S]*?)\/head>/i)[0];
     }
     return headContent;

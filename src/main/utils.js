@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-22 20:33:56
- * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-03 19:07:10
+* LastEditors: Night-stars-1 nujj1042633805@gmail.com
+* LastEditTime: 2024-02-16 18:59:36
  */
 const fs = require("fs");
 const path = require("path");
@@ -83,7 +83,9 @@ const defaultSettings = {
             }
         },
         message_merging: false,
-        message_avatar_float: false
+        message_avatar_float: false,
+        ckeditor_history: false,
+        image_other_close: false
     }
 }
 

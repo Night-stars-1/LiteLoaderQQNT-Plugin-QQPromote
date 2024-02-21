@@ -29,12 +29,12 @@ if (!db.data) {
     output("数据库升级完成")
 }
 
-async function setUrlData(url, data) {
+function setUrlData(url, data) {
     db.data[url] = data;
     db.write()
 }
 
-async function getUrlData(url) {
+function getUrlData(url) {
     db.read()
     return db.data[url]
 }

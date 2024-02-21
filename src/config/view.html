@@ -2,7 +2,7 @@
  * @Author: Night-stars-1 nujj1042633805@gmail.com
  * @Date: 2023-08-12 20:16:45
  * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-12 16:17:57
+ * @LastEditTime: 2024-02-21 18:46:38
  * @Description: 
  * 
  * Copyright (c) 2023 by Night-stars-1, All Rights Reserved. 
@@ -309,7 +309,7 @@
     <div class="vertical-list-item" @click="message_merging = !message_merging">
         <div>
             <h2>消息合并</h2>
-            <span class="secondary-text">消息合并(重启生效)</span>
+            <span class="secondary-text">消息合并</span>
         </div>
         <div class="switchBackgroundImage q-switch" :class="{ 'is-active': message_merging }">
             <span class="q-switch__handle"></span>
@@ -328,6 +328,26 @@
             </div>
         </div>
     </Transition>
+    <hr class="horizontal-dividing-line">
+    <div class="vertical-list-item" @click="ckeditor_history = !ckeditor_history">
+        <div>
+            <h2>输入历史</h2>
+            <span class="secondary-text">记忆输入框的输入内容，使用上下键切换</span>
+        </div>
+        <div class="switchBackgroundImage q-switch" :class="{ 'is-active': ckeditor_history }">
+            <span class="q-switch__handle"></span>
+        </div>
+    </div>
+    <hr class="horizontal-dividing-line">
+    <div class="vertical-list-item" @click="image_other_close = !image_other_close">
+        <div>
+            <h2>点击图片外关闭图片</h2>
+            <span class="secondary-text">点击图片外关闭图片</span>
+        </div>
+        <div class="switchBackgroundImage q-switch" :class="{ 'is-active': image_other_close }">
+            <span class="q-switch__handle"></span>
+        </div>
+    </div>
 </div>
 
 <div class="wrap" id="sidebar">

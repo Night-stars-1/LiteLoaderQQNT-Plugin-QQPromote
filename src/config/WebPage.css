@@ -4,7 +4,7 @@
     margin-bottom: .125rem;
     padding: .375rem;
     line-height: 1.3rem;
-    background-color: rgb(217,245,206);
+    background-color: var(--WebPage_background-color);
     border-radius: .25rem;
     position: relative;
 }

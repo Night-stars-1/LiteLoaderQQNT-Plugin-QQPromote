@@ -1,15 +1,16 @@
 /*
  * @Date: 2024-01-09 00:35:45
 * LastEditors: Night-stars-1 nujj1042633805@gmail.com
-* LastEditTime: 2024-02-12 17:33:49
+* LastEditTime: 2024-02-17 18:08:08
  */
 import { domUpMessages } from "./renderer/domUpMessages.js"
 import { changeHref, domUpNavItem } from "./renderer/changeHref.js"
 import { userLogin } from "./renderer/userLogin.js"
 import { setMessage } from "./renderer/setMessage.js"
-import { addrepeatmsg_menu } from "./renderer/addRepeatMsgMenu.js"
+import { qMenu } from "./renderer/qMenu.js"
 import { setting_vue } from "./renderer/setVue.js"
 import { hookVue3 } from "./renderer/vue.js"
+import { qGuildMenu } from "./renderer/qGuildMenu.js"
 
 const updateStyle = qqpromote.updateStyle;
 const updateWebPageStyle = qqpromote.updateWebPageStyle;
@@ -86,10 +87,12 @@ async function onLoad() {
 
     userLogin()
 
-    LLAPI.add_qmenu(addrepeatmsg_menu)
-
+    LLAPI.add_qmenu(qMenu)
+    LLAPI.add_qGuildMenu(qGuildMenu)
+    
     LLAPI.on("dom-up-messages", domUpMessages)
     
+    changeHref(location)
     LLAPI.on("change_href", changeHref)
     LLAPI.on("dom-up-nav-item", domUpNavItem)
 
@@ -125,7 +128,11 @@ async function onSettingWindowCreated(view){
 }
 
 hookVue3()
-onLoad()
+if (location.hash === "#/blank") {
+    navigation.addEventListener("navigatesuccess", onLoad, { once: true });
+} else {
+    onLoad();
+}
 
 export {
     onSettingWindowCreated

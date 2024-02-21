@@ -57,9 +57,12 @@ function onLoad() {
     // 保存设置
     ipcMain.handle(
         "LiteLoader.qqpromote.setSettings",
-        (event, content) => {
+        (event, config) => {
             try {
-                setSettings(settingsPath, content)
+                BrowserWindow.getAllWindows().forEach(window => {
+                    window.webContents.send('LiteLoader.qqpromote.updateSettings', config);
+                })
+                setSettings(settingsPath, config)
             } catch (error) {
                 output(error);
             }
@@ -91,8 +94,8 @@ function onLoad() {
         async (event, url) => {
             let data = {};
             try {
-                data = await getUrlData(url)
-                if (data) {
+                data = getUrlData(url)
+                if (!data) {
                     data = await getLinkPreview(url);
                     setUrlData(url, data)
                 }

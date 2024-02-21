@@ -1,5 +1,7 @@
-import { setting_data, decodeQR } from "./utils.js"
+import { decodeQR, output } from "./utils.js"
+import { config } from "./config.js"
 import { repeatmsg_ele, qrcode_ele, chatgpt_ele } from "./myElement.js"
+
 const chatgpt = qqpromote.chatgpt
 
 /**
@@ -7,7 +9,7 @@ const chatgpt = qqpromote.chatgpt
  * @param {*} qContextMenu 
  * @param {*} message_element 
  */
-async function addrepeatmsg_menu(qContextMenu, message_element) {
+async function qMenu(qContextMenu, message_element) {
     const { classList } = message_element
     const msgprops = message_element?.closest(".msg-content-container")?.closest(".message")?.__VUE__?.[0]?.props
     const uid = msgprops?.uid
@@ -17,7 +19,7 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
     // const qThemeValue = document.body.getAttribute('q-theme');
     // qContextMenu.style.setProperty('--q-contextmenu-max-height', 'calc(40vh - 16px)');
     // +1
-    if (setting_data?.setting.repeat_msg) {
+    if (config.setting.repeat_msg) {
         // 插入分隔线
         // qContextMenu.insertAdjacentHTML(location, separatorHTML)
         const repeatmsg = repeatmsg_ele.cloneNode(true);
@@ -38,7 +40,7 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
             repeatmsg.querySelector("svg").setAttribute("fill", "#ffffff")
         }
         */
-        if (setting_data.setting.rpmsg_location) {
+        if (config.setting.rpmsg_location) {
             qContextMenu.insertBefore(repeatmsg, qContextMenu.firstChild);
         } else {
             qContextMenu.appendChild(repeatmsg);
@@ -46,11 +48,11 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
     }
 
     // chatgpt对话
-    if (setting_data?.setting.chatgpt) {
+    if (config.setting.chatgpt) {
         const chatgpt_msg = chatgpt_ele.cloneNode(true);
         chatgpt_msg.addEventListener('click', async () => {
-            const msg = await chatgpt(content, setting_data.setting)
-            if (setting_data?.setting.chatgpt_add_reply) {
+            const msg = await chatgpt(content, config.setting)
+            if (config.setting.chatgpt_add_reply) {
                 await LLAPI.set_editor(msg)
                 qContextMenu.childNodes.forEach((element) => {
                     if (element.textContent === "回复") {
@@ -68,14 +70,14 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
             chatgpt_msg.querySelector("svg").setAttribute("fill", "#ffffff")
         }
         */
-        if (setting_data.setting.chatgpt_location) {
+        if (config.setting.chatgpt_location) {
             qContextMenu.insertBefore(chatgpt_msg, qContextMenu.firstChild);
         } else {
             qContextMenu.appendChild(chatgpt_msg);
         }
     }
 
-    if (setting_data?.setting.qrcode) {
+    if (config.setting.qrcode) {
         // 识别二维码
         const qrcode = qrcode_ele.cloneNode(true);
         qrcode.addEventListener('click', async () => {
@@ -103,7 +105,7 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
     // 回复点击监听 点击回复按钮
     qContextMenu.childNodes.forEach((element) => {
         if (element.textContent === "回复") {
-            if (senderUid != uid && setting_data?.setting.reply_at && !setting_data?.setting.reply_at_click) {
+            if (senderUid != uid && config.setting.reply_at) {
                 element.addEventListener('click', async () => {
                     const interval = setInterval(async () => {
                         let editor = await LLAPI.get_editor()
@@ -120,5 +122,5 @@ async function addrepeatmsg_menu(qContextMenu, message_element) {
 }
 
 export {
-    addrepeatmsg_menu
+    qMenu
 }

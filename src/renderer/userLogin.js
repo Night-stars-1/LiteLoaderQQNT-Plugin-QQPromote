@@ -3,7 +3,7 @@
  * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
  * @LastEditTime: 2024-01-19 16:57:44
  */
-import { setting_data } from "./utils.js"
+import { config } from "./config.js"
 
 let resetLogin = false;
 
@@ -48,7 +48,7 @@ function userLogin() {
         loginView.insertBefore(loginEle, loginView.firstChild)
     }
     LLAPI.on("user-login", async (account) => {
-        if (setting_data.setting.resetLogin) LLAPI.resetLoginInfo(account.uin)
+        if (config.setting.resetLogin) LLAPI.resetLoginInfo(account.uin)
     })
 }
 

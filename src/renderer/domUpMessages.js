@@ -1,56 +1,10 @@
-import { check_only_img, get_link_data, output } from "./utils.js"
+import { check_only_img, get_link_data, hexToHSL, output } from "./utils.js"
 import { message_time, message_web } from "./myElement.js"
+import { config } from "./config.js"
 
 let translate_hover;
 
-const childMsgHeight = new Map();
-const setting_data = await qqpromote.getSettings()
-
 async function domUpMessages(node) {
-    // 链接识别，并生成预览
-    const msg_link = node.querySelector(".text-link")
-    if (msg_link && setting_data?.setting.link_preview) {
-        const url = msg_link.innerText
-        const url_data = await get_link_data(url) // 消息数据
-        if (url_data) {
-            const msg_content = node.querySelector(".msg-content-container").firstElementChild
-            msg_content.style.overflow = "visible";
-            const web_ele1 = document.createElement("div");
-            web_ele1.innerHTML = message_web.format({ url: url, img: url_data?.image, title: url_data?.title, description: url_data?.description})
-            const web_ele = web_ele1.lastElementChild
-            const img_ele = web_ele.querySelector(".media-photo")
-            const message_width = node.querySelector('.message-content').offsetWidth
-            web_ele.style.setProperty('--message-width', `${message_width>=300? message_width-10:300}px`);
-            if (img_ele) {
-                img_ele.onload = function() {
-                    const width = this.width;
-                    width<message_width/3 && web_ele.classList.add('with-small-photo')
-                };
-                img_ele.onerror = function() {
-                    img_ele.style.display = "none"
-                };
-            }
-            msg_content.appendChild(web_ele);
-        }
-    }
-    if (setting_data?.setting.message_merging) {
-        const msg_list = node.closest('.ml-list.list')
-        if (msg_list) {
-            const ml_items = msg_list?.querySelectorAll('.ml-item')
-            Array.from(ml_items).forEach(element => {
-                const targetProps = element.firstElementChild.__VUE__[0].props
-                const targetChatType = targetProps.msgRecord.qqpromote?.chatType
-                const targetSenderUid = targetProps.msgRecord.senderUid
-                if (targetChatType == "child") {
-                    childMsgHeight.set(targetSenderUid, (childMsgHeight.get(targetSenderUid) ?? 0) + element.getBoundingClientRect().height);
-                } else if (targetProps.msgRecord.elements[0].grayTipElement === null && targetChatType == "main") {
-                    const avatarSpan = element.querySelector(".avatar-span")
-                    avatarSpan.style.height = `${(childMsgHeight.get(targetSenderUid) ?? 0) + element.getBoundingClientRect().height - 7}px`;
-                    childMsgHeight.set(targetSenderUid, 0);
-                }
-            });
-        }
-    }
     const msgprops = node?.firstElementChild?.__VUE__?.[0]?.props
     const msgId = msgprops?.msgRecord.msgId;
     const msgTime = msgprops?.msgRecord.msgTime;
@@ -58,13 +12,50 @@ async function domUpMessages(node) {
     const senderUid = msgprops?.msgRecord.senderUid;
     const peer = await LLAPI.getPeer()
     const friendslist = await LLAPI.getFriendsList()
+    // 链接识别，并生成预览
+    const msgLink = node.querySelector(".text-link")
+    const WebPage = node.querySelector(".WebPage")
+    if (msgLink && config.setting.link_preview) {
+        if (!WebPage) {
+            const url = msgLink.innerText
+            const url_data = await get_link_data(url) // 消息数据
+            if (url_data) {
+                const msgContainer = node.querySelector(".msg-content-container")
+                const msgContent = msgContainer.firstElementChild
+                msgContent.style.overflow = "visible";
+                const web_ele1 = document.createElement("div");
+                web_ele1.innerHTML = message_web.format({ img: url_data?.image, title: url_data?.title, description: url_data?.description})
+                const web_ele = web_ele1.lastElementChild
+                const img_ele = web_ele.querySelector(".media-photo")
+                const message_width = node.querySelector('.message-content').offsetWidth
+                const backgroundColor = msgContainer.classList.contains("container--self")? getComputedStyle(document.body).getPropertyValue('--bubble_host') : getComputedStyle(document.body).getPropertyValue('--bubble_guest')
+                let hsl = hexToHSL(backgroundColor)
+                hsl = hsl[0] === 0? [103, 66, 78]:hsl
+                web_ele.style.setProperty('--WebPage_background-color', `hsl(${hsl[0]}, ${hsl[1]}%, ${hsl[2]+10}%)`)
+                web_ele.style.setProperty('--message-width', `${message_width>=300? message_width-10:300}px`);
+                if (img_ele) {
+                    img_ele.onload = function() {
+                        const width = this.width;
+                        width<message_width/3 && web_ele.classList.add('with-small-photo')
+                    };
+                    img_ele.onerror = function() {
+                        img_ele.style.display = "none"
+                    };
+                }
+                msgContent.appendChild(web_ele);
+            }
+        } else {
+            const message_width = node.querySelector('.message-content').offsetWidth
+            WebPage.style.setProperty('--message-width', `${message_width>=300? message_width-10:300}px`);
+        }
+    }
     // 翻译
     const msg_text = node.querySelector(".text-normal")
     if (msg_text) {
         function translate(event) {
             const text = event.target.textContent
             translate_hover = setInterval(async () => {
-                const translate_data = await qqpromote.translate(text, setting_data.setting)
+                const translate_data = await qqpromote.translate(text, config.setting)
                 const timeEl = document.createElement("div");
                 timeEl.innerText = translate_data?.TargetText
                 event.target.closest(".message-content.mix-message__inner").appendChild(timeEl);
@@ -72,7 +63,7 @@ async function domUpMessages(node) {
                 msg_text.removeEventListener("mouseover", translate);
             }, 1000);
         }
-        if (setting_data.setting.translate) {
+        if (config.setting.translate) {
             msg_text.addEventListener("mouseover", translate);
         } else {
             msg_text.removeEventListener("mouseover", translate);
@@ -86,19 +77,19 @@ async function domUpMessages(node) {
         //msg_text.textContent+=" ".repeat(5)
     }
     // 消息时间
-    if (setting_data?.setting.show_time && node.querySelector(".msg-content-container")) {
+    if (config.setting.show_time && node.querySelector(".msg-content-container")) {
         const date = new Date(msgTime * 1000);
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const timestamp = `${hours}:${String(minutes).padStart(2, '0')}`
         const msg_content = node.querySelector(".msg-content-container").firstElementChild
-        if (setting_data?.setting.show_time_up) {
+        if (config.setting.show_time_up) {
             const user_name = node.querySelector(".user-name")
             const user_name_time = document.createElement("div");
             user_name_time.classList.add("user_name_time")
             user_name_time.innerText = date.toLocaleString()
-            user_name_time.style.color = setting_data?.setting.time_color
-            user_name.appendChild(user_name_time);
+            user_name_time.style.color = config.setting.time_color
+            user_name?.appendChild(user_name_time);
         } else {
             //msg_content.style.overflow = "visible";
             const msg_time_ele1 = document.createElement("div");
@@ -126,9 +117,9 @@ async function domUpMessages(node) {
                 //msg_content_ele.style.right = "-1px"
             }
             const time_inner_ele = msg_time_ele.querySelector(".time .inner")
-            time_inner_ele.style.color = setting_data?.setting.time_color
+            time_inner_ele.style.color = config.setting.time_color
             msg_time_ele.addEventListener("click", async (event) => {
-                if (setting_data?.setting.repeat_msg_time) {
+                if (config.setting.repeat_msg_time) {
                     const peer = await LLAPI.getPeer()
                     await LLAPI.forwardMessage(peer, peer, [msgId])
                 }
@@ -138,14 +129,14 @@ async function domUpMessages(node) {
     }
     // 自动语音转文字
     const ptt_area = node.querySelector(".ptt-element__bottom-area")
-    if (ptt_area && setting_data?.setting.auto_ptt2Text) {
+    if (ptt_area && config.setting.auto_ptt2Text) {
         if (!ptt_area.closest(".message-container--self")) {
             await LLAPI.Ptt2Text(msgId, peer, elements)
             ptt_area.style.display = "block"
         }
     }
     // 回复点击监听 点击空白
-    if (setting_data?.setting.reply_at && setting_data?.setting.reply_at_click) {
+    if (config.setting.reply_at && config.setting.reply_at_click) {
         const message_container = node.querySelector(".message-container")
         message_container?.addEventListener('click', async () => {
             const interval = setInterval(async () => {
@@ -159,7 +150,7 @@ async function domUpMessages(node) {
         })
     }
     // 名称扩展
-    if (setting_data?.setting.friendsinfo && node.querySelector(".msg-content-container")) {
+    if (config.setting.friendsinfo && node.querySelector(".msg-content-container")) {
         const friendItem = friendslist.find(item => item.uid === senderUid);
         const friend_info = `<${friendItem.raw.remark? friendItem.raw.remark:friendItem.nickName}>(${friendItem.uin})`
         const user_name = node.querySelector(".user-name .text-ellipsis")

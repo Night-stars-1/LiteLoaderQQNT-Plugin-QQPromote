@@ -1,8 +1,8 @@
 /*
  * @Author: Night-stars-1 nujj1042633805@gmail.com
  * @Date: 2023-08-05 13:44:33
- * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-03 20:12:59
+* LastEditors: Night-stars-1 nujj1042633805@gmail.com
+* LastEditTime: 2024-02-17 00:33:53
  * @Description: 
  * 
  * Copyright (c) 2023 by Night-stars-1, All Rights Reserved. 
@@ -18,6 +18,10 @@ contextBridge.exposeInMainWorld("qqpromote", {
     setSettings: content => ipcRenderer.invoke(
         "LiteLoader.qqpromote.setSettings",
         content
+    ),
+    updateSettings: callback => ipcRenderer.on(
+        "LiteLoader.qqpromote.updateSettings",
+        callback
     ),
     translate: (text, data) => ipcRenderer.invoke(
         "LiteLoader.qqpromote.translate",
@@ -45,6 +49,10 @@ contextBridge.exposeInMainWorld("qqpromote", {
     ),
     updateStyle: (callback) => ipcRenderer.on(
         "LiteLoader.qqpromote.updateStyle",
+        callback
+    ),
+    onAddSendMsg: (callback) => ipcRenderer.on(
+        "LiteLoader.qqpromote.onAddSendMsg",
         callback
     ),
     updateWebPageStyle: (callback) => ipcRenderer.on(

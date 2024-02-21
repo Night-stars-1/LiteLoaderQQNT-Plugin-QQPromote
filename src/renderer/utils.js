@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-19 16:49:48
- * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-03 21:10:17
+ * LastEditors: Night-stars-1 nujj1042633805@gmail.com
+ * LastEditTime: 2024-02-19 23:24:54
  */
 
 const plugin_path = LiteLoader.plugins.qqpromote.path; // 插件本体的路径
@@ -12,12 +12,6 @@ const get_imgbase64 = qqpromote.get_imgbase64
 String.prototype.format = function(params) {
     return this.replace(/\{(\w+)\}/g, (match, key) => params[key] || '');
 };
-
-
-//import { createApp, ref, reactive, watch } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.esm-browser.prod.min.js'
-//import axios from 'https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/esm/axios.js'
-
-const setting_data = await qqpromote.getSettings()
 
 function output(...args) {
     console.log("\x1b[32m[QQ增强-渲染]\x1b[0m", ...args);
@@ -99,9 +93,41 @@ async function decodeQR(image) {
         });
 }
 
+/**
+ * 将十六进制颜色转换为 HSL 格式
+ * @param {string} hexColor 
+ * @returns 
+ */
+function hexToHSL(hexColor) {
+    let r = parseInt(hexColor.substring(1, 3), 16) / 255;
+    let g = parseInt(hexColor.substring(3, 5), 16) / 255;
+    let b = parseInt(hexColor.substring(5, 7), 16) / 255;
 
-async function setSettings(content) {
-    await qqpromote.setSettings(JSON.stringify(content))
+    let max = Math.max(r, g, b);
+    let min = Math.min(r, g, b);
+    let delta = max - min;
+
+    let h, s, l;
+
+    if (delta === 0) {
+        h = 0;
+    } else if (max === r) {
+        h = 60 * (((g - b) / delta) % 6);
+    } else if (max === g) {
+        h = 60 * (((b - r) / delta) + 2);
+    } else {
+        h = 60 * (((r - g) / delta) + 4);
+    }
+
+    l = (max + min) / 2;
+
+    if (delta === 0) {
+        s = 0;
+    } else {
+        s = delta / (1 - Math.abs(2 * l - 1));
+    }
+
+    return [h, s*100, l*100];
 }
 
 export {
@@ -109,6 +135,5 @@ export {
     check_only_img,
     get_link_data,
     decodeQR,
-    setSettings,
-    setting_data,
+    hexToHSL
 }
