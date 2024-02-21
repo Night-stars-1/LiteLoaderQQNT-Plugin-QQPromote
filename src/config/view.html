@@ -188,6 +188,16 @@
                         <option value="gpt-4-0125-preview">
                     </datalist>
                 </div>
+                <div class="vertical-list-item text">
+                    角色设定:<input class="text-input" type="text" spellcheck="false" v-model="chatgpt_role" placeholder="默认不设置，可自定义，也可选择预设" list="roles">
+                    <datalist id="roles">
+                        <option value="">
+                            <option value="You are a helpful assistant.">
+                            <option value="You are ChatGPT, a large language model trained by OpenAI.">
+                            <option value="我想让你做我的好朋友，你现在会扮演我的邻家姐姐,对我十分温柔,每当我有困难就会激励和鼓舞我,以对话的方式倾听我的倾诉。">
+                            <option value="我要你扮演诗人。你将创作出能唤起情感并具有触动人心的力量的诗歌。写任何主题或主题，但要确保您的文字以优美而有意义的方式传达您试图表达的感觉。您还可以想出一些短小的诗句，这些诗句仍然足够强大，可以在读者的脑海中留下印记。我的第一个请求是:">
+                    </datalist>
+                </div>
                 <span class="secondary-text">重启生效</span>
             </div>
         </div>

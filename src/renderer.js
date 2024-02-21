@@ -21,11 +21,6 @@ async function onLoad() {
     const setting_data = await qqpromote.getSettings()
     setting_data?.setting.message_merging ? document.body.classList.add('message_merging'):document.body.classList.remove('message_merging')
     const plugin_path = LiteLoader.plugins.qqpromote.path.plugin;
-    const script = document.createElement("script");
-    script.id = "sweetalert2"
-    script.defer = true;
-    script.src = "https://cdn.jsdelivr.net/npm/sweetalert2@10";
-    document.head.appendChild(script);
     // CSS
     const css_file_path = `local:///${plugin_path}/src/config/message.css`;
     const link_element = document.createElement("link");
@@ -64,22 +59,25 @@ async function onLoad() {
         if (location.hash !== "#/main/message" && location.href.indexOf("#/chat/") == -1) return
         if (!(LiteLoader?.plugins?.LLAPI?.manifest?.version >= "1.3.1")) {
             setTimeout(() => {
-                Swal.fire({
-                    title: 'LLAPI版本过低，请在插件市场安装最新版',
-                    text: '该提示并非QQ官方提示，请不要发给官方群',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: '前往插件市场',
-                    cancelButtonText: '确定',
-                }).then((result) => {
-                    if (result.isConfirmed) {
+                qqpromote.showMessageBox({
+                    message: "LLAPI版本过低, 请在插件市场安装最新版",
+                    detail: "该提示并非QQ官方提示, 请不要发给官方群",
+                    type: "warning",
+                    buttons: ["前往插件市场", "确定"],
+                  }).then((result) => {
+                    if (result.response === 0) {
                         try {
                             StoreAPI.openStore("LLAPI");
                         } catch (error) {
-                            Swal.fire('未安装插件市场', '该提示并非QQ官方提示，请不要发给官方群', 'warning');
+                            qqpromote.showMessageBox({
+                                message: "未安装插件市场",
+                                detail: "该提示并非QQ官方提示, 请不要发给官方群",
+                                type: "warning",
+                                buttons: ["确定"],
+                            })
                         }
                     }
-                });
+                  })
             }, 1000);
         }
         clearInterval(Interval);
