@@ -59,7 +59,7 @@ function watchComponentMount(component) {
                             msgContent.appendChild(web_ele);
                         }
 
-                        const revokeElement = msgRecord.elements[0].grayTipElement?.revokeElement
+                        const revokeElement = msgRecord.elements?.[0].grayTipElement?.revokeElement
                         if (revokeElement && revokeElement?.wording !== "") {
                             node.innerHTML = node.innerHTML.replace("一条消息", `一条消息, ${revokeElement.wording}`)
                         }
