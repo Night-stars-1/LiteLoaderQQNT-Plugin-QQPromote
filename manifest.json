@@ -1,0 +1,31 @@
+{
+    "manifest_version": 4,
+    "type": "extension",
+    "name": "QQ增强",
+    "slug": "qqpromote",
+    "description": "复读姬，二维码识别，时间显示，翻译，屏蔽更新，链接预览，ChatGPT，禁止回复自动AT，侧边栏管理，自动登录，屏蔽通话，群聊名称扩展",
+    "version": "1.7.0.1",
+    "authors": [
+        {
+            "name": "Night-stars-1",
+            "link": "https://github.com/Night-stars-1"
+        }
+    ],
+    "repository": {
+        "repo": "Night-stars-1/LiteLoaderQQNT-Plugin-QQPromote",
+        "branch": "master",
+        "release": {
+            "tag": "v1.7.0.1"
+        }
+    },
+    "platform": [
+        "win32",
+        "linux",
+        "darwin"
+    ],
+    "injects": {
+        "main": "./src/main.js",
+        "preload": "./src/preload.js",
+        "renderer": "./src/renderer.js"
+    }
+}
