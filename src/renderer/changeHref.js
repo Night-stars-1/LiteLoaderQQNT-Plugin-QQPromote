@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-19 16:44:32
  *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-23 19:46:21
+ *LastEditTime: 2024-08-23 20:03:47
  */
 import { output } from "./utils.js"
 import { config, setSettings } from "./config.js"
@@ -51,6 +51,9 @@ function changeHref(location) {
                 clearInterval(interval);
                 const closeElement = document.createElement("div")
                 closeElement.classList.add("close-image")
+                closeElement.addEventListener('click', (event) => {
+                    document.querySelector(".close").click()
+                });
                 mainAreaRotateElement.appendChild(closeElement)
                 // const mainAreaElement = mainAreaRotateElement.querySelector(".main-area__image-wrap")
                 // // 监听图片的点击事件

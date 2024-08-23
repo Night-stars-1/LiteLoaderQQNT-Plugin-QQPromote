@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-09 00:35:45
-* LastEditors: Night-stars-1 nujj1042633805@gmail.com
-* LastEditTime: 2024-02-17 18:08:08
+ *LastEditors: Night-stars-1 nujj1042633805@gmail.com
+ *LastEditTime: 2024-08-23 20:02:52
  */
 import { domUpMessages } from "./renderer/domUpMessages.js"
 import { changeHref, domUpNavItem } from "./renderer/changeHref.js"
@@ -36,7 +36,7 @@ async function onLoad() {
     const GlobalCSS_file_path = `local:///${plugin_path}/src/config/global.css`;
     const GlobalCSS_element = document.createElement("link");
     GlobalCSS_element.rel = "stylesheet";
-    GlobalCSS_element.href = css_file_path;
+    GlobalCSS_element.href = GlobalCSS_file_path;
     document.head.appendChild(GlobalCSS_element);
     updateStyle(() => {
         link_element.href = `${css_file_path}?r=${new Date().getTime()}`;
