@@ -6,6 +6,7 @@ let translate_hover;
 
 async function domUpMessages(node) {
     const msgprops = node?.firstElementChild?.__VUE__?.[0]?.props
+    if (msgprops?.msgRecord) return
     const msgId = msgprops?.msgRecord.msgId;
     const msgTime = msgprops?.msgRecord.msgTime;
     const elements = msgprops?.msgRecord.elements[0];

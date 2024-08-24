@@ -2,7 +2,7 @@
  *Author: Night-stars-1 nujj1042633805@gmail.com
  *Date: 2024-08-23 16:03:37
  *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-23 19:43:32
+ *LastEditTime: 2024-08-24 15:33:22
  */
 import { message_web } from "./myElement.js"
 import { hexToHSL } from "./utils.js";
@@ -29,18 +29,18 @@ function watchComponentMount(component) {
                     const node = target[prop]
                     const msgRecord = target.props['msg-record']
                     if (node && node.classList.contains("message") && !debounceId.includes(msgRecord.msgId)) {
-                        setDebounceId(msgRecord.msgId)
+                        // setDebounceId(msgRecord.msgId)
                         if (config.setting.message_merging) {
                             if (msgRecord?.qqpromote?.chatType == "child") {
                                 node.classList.remove('main')
                                 node.classList.add('child')
-                            } else {
+                            } else if (msgRecord?.qqpromote?.chatType == "main") {
                                 node.classList.remove('child')
                                 node.classList.add('main')
                             }
                         }
                         const url_data = msgRecord?.qqpromote?.linkPreview
-                        if (url_data) {
+                        if (url_data && node.querySelector(".WebPage")) {
                             const msgContainer = node.querySelector(".msg-content-container")
                             const msgContent = msgContainer.firstElementChild
                             msgContent.style.overflow = "visible";

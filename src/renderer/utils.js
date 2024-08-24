@@ -154,11 +154,22 @@ function hexToRGB(hex) {
     return [r, g, b];
 }
 
+function debounce(func, ms) {
+    let timeout;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(context, args), ms);
+    };
+}
+
 export {
     output,
     check_only_img,
     get_link_data,
     decodeQR,
     hexToHSL,
-    hexToRGB
+    hexToRGB,
+    debounce
 }

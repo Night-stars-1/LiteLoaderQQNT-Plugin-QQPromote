@@ -1,12 +1,3 @@
-/*
- * @Author: Night-stars-1 nujj1042633805@gmail.com
- * @Date: 2023-08-12 15:41:47
-* LastEditors: Night-stars-1 nujj1042633805@gmail.com
-* LastEditTime: 2024-02-19 19:14:05
- * @Description: 
- * 
- * Copyright (c) 2023 by Night-stars-1, All Rights Reserved. 
- */
 const { randomUUID } = require("crypto")
 const fs = require("fs");
 const path = require("path");
@@ -28,6 +19,7 @@ let targetPeerUid = "";
  */
 function setMsgRecord(msgRecord) {
     if (!msgRecord.qqpromote) msgRecord.qqpromote = {}
+    if (msgRecord.elements.length === 0) return
     const textContent = msgRecord.elements[0].textElement?.content
 
     const linkMatches = textContent?.match(/https?:\/\/\S+/gi);
@@ -36,9 +28,12 @@ function setMsgRecord(msgRecord) {
     }
     // 消息合并标记
     if (msgRecord.elements[0].grayTipElement === null) {
-        msgRecord.qqpromote.chatType = lastSenderUid === msgRecord.senderUid? 'child':'main'
-        lastSenderUid = msgRecord.senderUid
+        // if (msgRecord.peerUid == "") console.log(lastSenderUid, msgRecord.senderUid, msgRecord.msgId, "1")
+        const msgUid = msgRecord.senderUid + msgRecord.peerUid
+        msgRecord.qqpromote.chatType = lastSenderUid === msgUid? 'child':'main'
+        lastSenderUid = msgUid
     } else {
+        // if (msgRecord.peerUid == "") console.log(lastSenderUid, msgRecord.senderUid, msgRecord.msgId, "2")
         msgRecord.qqpromote.chatType = 'main'
         lastSenderUid = ''
     }
@@ -56,8 +51,28 @@ function onBrowserWindowCreated(window) {
             case "nodeIKernelUnitedConfigListener/onUnitedConfigUpdate":
                 // 屏蔽更新
                 if (!data.setting.not_updata) break;
-                args[1][0].payload.configData.content = ""
-                args[1][0].payload.configData.isSwitchOn = false
+                const content = args[1][0].payload.configData.content
+                if (content.includes('"title": "更新提醒"')) {
+                    args[1][0].payload.configData.content = ""
+                    args[1][0].payload.configData.isSwitchOn = false
+                } else if (content.includes('"label": "频道"')) {
+                    // 侧边栏管理
+                    const sideData = JSON.parse(content)
+                    if (Array.isArray(data.setting.sidebar_list)) {
+                        data.setting.sidebar_list = {}
+                    }
+                    const new_content = []
+                    sideData.forEach((item) => {
+                        if (!(item.label in data.setting.sidebar_list)) {
+                            data.setting.sidebar_list[item.label] = false
+                        }
+                        if (!data.setting.sidebar_list[item.label]){
+                            new_content.push(item)
+                        }
+                    })
+                    args[1][0].payload.configData.content = JSON.stringify(new_content)
+                    setSettings(settingsPath, data)
+                }
                 break;
             case "onOpenParamChange":
                 // 禁止通话
@@ -110,10 +125,10 @@ function onBrowserWindowCreated(window) {
                 }
                 setMsgRecord(msgItem)
                 break;
-            case "nodeIKernelMsgListener/onAddSendMsg":
-                const msgRecord = payload.msgRecord
-                window.webContents.send("LiteLoader.qqpromote.onAddSendMsg", msgRecord.msgId);
-                setMsgRecord(msgRecord)
+            case "nodeIKernelMsgListener/onRecvActiveMsg":
+                const recvActiveMsgItem = payload.msgList[0]
+                setMsgRecord(recvActiveMsgItem)
+                window.webContents.send("LiteLoader.qqpromote.onAddSendMsg", recvActiveMsgItem.msgId);
                 break;
         }
         // 替换历史消息中的小程序卡片
@@ -172,25 +187,6 @@ function onBrowserWindowCreated(window) {
                 setMsgRecord(msgItem)
             });
             //msgList.reverse();
-        } else if (args?.[1]?.configData?.content?.length > 0) {
-            // 侧边栏管理
-            const content = JSON.parse(args[1].configData.content)
-            if (Array.isArray(content) && !(content.findIndex((item) => item.label === "空间"))) {
-                if (Array.isArray(data.setting.sidebar_list)) {
-                    data.setting.sidebar_list = {}
-                }
-                const new_content = []
-                content.forEach((item) => {
-                    if (!(item.label in data.setting.sidebar_list)) {
-                        data.setting.sidebar_list[item.label] = false
-                    }
-                    if (!data.setting.sidebar_list[item.label]){
-                        new_content.push(item)
-                    }
-                })
-                args[1].configData.content = JSON.stringify(new_content)
-                setSettings(settingsPath, data)
-            }
         } else if (args?.[0]?.callbackId === emojiCallbackId) {
             // 收藏表情
             localEmojiInfoList = emojis.map((item, index) => ({
