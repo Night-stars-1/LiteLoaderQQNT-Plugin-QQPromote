@@ -2,7 +2,7 @@
  *Author: Night-stars-1 nujj1042633805@gmail.com
  *Date: 2024-08-23 16:03:37
  *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-26 17:06:39
+ *LastEditTime: 2024-08-26 17:53:24
  */
 import { message_web, message_time } from "./myElement.js";
 import { check_only_img, hexToHSL, rgbToHsl } from "./utils.js";
@@ -88,7 +88,7 @@ function watchComponentMount(component) {
                   msg_time_ele.addEventListener("click", async (event) => {
                     if (config.setting.repeat_msg_time) {
                       const peer = await LLAPI.getPeer();
-                      await LLAPI.forwardMessage(peer, peer, [msgId]);
+                      await LLAPI.forwardMessage(peer, peer, [msgRecord.msgId]);
                     }
                   });
                   msg_content.appendChild(msg_time_ele);

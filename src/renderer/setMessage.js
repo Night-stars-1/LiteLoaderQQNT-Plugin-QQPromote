@@ -6,7 +6,7 @@ const onAddSendMsg = qqpromote.onAddSendMsg;
 let injectCkeditor = false;
 let ckeditorHistoryIndex = 0;
 let targetCkeditorIndex = 0;
-let targetCkeditorText = ""
+let targetCkeditorText = "";
 const ckeditorHistory = [];
 const ckedditorIndex2msgId = new Map();
 
@@ -18,8 +18,10 @@ function setMessage() {
   if (!observe && config.setting.message_merging) {
     observe = new MutationObserver(MsgMutation);
     observe.observe(document.querySelector(".ml-list.list"), {
-        childList: true,
-        subtree: true,
+      // attributes: true,
+      // attributeFilter: ["style"],
+      childList: true,
+      subtree: true,
     });
     // observe.observe(
     //   document.querySelector(".chat-msg-area .v-scrollbar-thumb"),
@@ -53,7 +55,7 @@ function setMessage() {
       async function setCkeditorHistory(event) {
         const ckeditorText = LLAPI.get_editor();
         if ((event.key === "Enter" || event.type === "click") && ckeditorText) {
-          targetCkeditorText = "" // 清理保存的文本
+          targetCkeditorText = ""; // 清理保存的文本
           ckeditorHistory.push(ckeditorText);
           ckeditorHistoryIndex = ckeditorHistory.length;
           targetCkeditorIndex = ckeditorHistory.length - 1;
@@ -68,16 +70,16 @@ function setMessage() {
           LLAPI.set_editor(ckeditorHistory[ckeditorHistoryIndex]);
         } else if (event.key === "ArrowDown") {
           if (ckeditorHistoryIndex < ckeditorHistory.length - 1) {
-            ckeditorHistoryIndex++
+            ckeditorHistoryIndex++;
             LLAPI.set_editor(ckeditorHistory[ckeditorHistoryIndex]);
           } else if (ckeditorHistoryIndex < ckeditorHistory.length) {
-            ckeditorHistoryIndex++
+            ckeditorHistoryIndex++;
             LLAPI.set_editor(targetCkeditorText);
           } else {
             LLAPI.set_editor(targetCkeditorText);
           }
         } else {
-            targetCkeditorText = ckeditorText
+          targetCkeditorText = ckeditorText;
         }
       }
       ckeditorDom.addEventListener("keydown", setCkeditorHistory);
@@ -91,24 +93,28 @@ function setMessage() {
 function MsgMutation() {
   // 遍历每个变化
   document.querySelectorAll(".ml-item").forEach((element) => {
-    const targetProps = element.firstElementChild.__VUE__[0].props;
-    if (targetProps.msgRecord.elements[0].grayTipElement === null) {
-      const targetChatType = targetProps.msgRecord.qqpromote?.chatType;
-      // const targetSenderUid = targetProps.msgRecord.senderUid;
-      if (targetChatType == "child") {
-        childMsgHeight += element.offsetHeight;
-        // childMsgHeight.set(
-        //   targetSenderUid,
-        //   (childMsgHeight.get(targetSenderUid) ?? 0) + element.offsetHeight
-        // );
-      } else if (targetChatType == "main") {
-        const avatarSpan = element.querySelector(".avatar-span");
-        avatarSpan.style.height = `${
-          childMsgHeight +
-          element.querySelector(".message-container").offsetHeight
-        }px`;
-        childMsgHeight = 0;
+    try {
+      const targetProps = element.firstElementChild.__VUE__[0].props;
+      if (targetProps.msgRecord.elements[0].grayTipElement === null) {
+        const targetChatType = targetProps.msgRecord.qqpromote?.chatType;
+        // const targetSenderUid = targetProps.msgRecord.senderUid;
+        if (targetChatType == "child") {
+          childMsgHeight += element.offsetHeight;
+          // childMsgHeight.set(
+          //   targetSenderUid,
+          //   (childMsgHeight.get(targetSenderUid) ?? 0) + element.offsetHeight
+          // );
+        } else if (targetChatType == "main") {
+          const avatarSpan = element.querySelector(".avatar-span");
+          avatarSpan.style.height = `${
+            childMsgHeight +
+            element.querySelector(".message-container").offsetHeight
+          }px`;
+          childMsgHeight = 0;
+        }
       }
+    } catch (error) {
+      console.log(error);
     }
   });
 }
@@ -120,30 +126,37 @@ const debounceMsgMutation = debounce(MsgMutation, 10);
 
 /**
  * 消息刷新监听
- * @param {MutationRecord[]} mutationsList 
+ * @param {MutationRecord[]} mutationsList
  */
 function _MsgMutation(mutationsList) {
   document.querySelectorAll(".ml-item").forEach((element) => {
-    const previousElement = element.previousElementSibling
+    const previousElement = element.previousElementSibling;
     const nextElement = element.nextElementSibling;
     const targetProps = element.firstElementChild.__VUE__[0].props;
     const targetSenderUid = targetProps.msgRecord?.senderUid;
-    if (targetProps.msgRecord.elements[0].grayTipElement !== null || !targetSenderUid) return
+    if (
+      targetProps.msgRecord.elements[0].grayTipElement !== null ||
+      !targetSenderUid
+    )
+      return;
     if (!nextElement) {
       element.classList.add("main");
       element.classList.add("not-next");
       element.classList.remove("child");
       const avatarSpan = element.querySelector(".avatar-span");
-      if (!avatarSpan) return
+      if (!avatarSpan) return;
       avatarSpan.style.height = `${
         (childMsgHeight.get(targetSenderUid) ?? 0) +
         element.querySelector(".message-container").offsetHeight
       }px`;
       childMsgHeight.delete(targetSenderUid);
-      return
+      return;
     }
     const nextProps = nextElement.firstElementChild.__VUE__[0].props;
-    if (targetSenderUid === nextProps.msgRecord.senderUid && nextProps.msgRecord.elements[0].grayTipElement === null) {
+    if (
+      targetSenderUid === nextProps.msgRecord.senderUid &&
+      nextProps.msgRecord.elements[0].grayTipElement === null
+    ) {
       nextElement.classList.remove("main");
       element.classList.add("child");
       childMsgHeight.set(
@@ -160,7 +173,10 @@ function _MsgMutation(mutationsList) {
       }px`;
       childMsgHeight.delete(targetSenderUid);
     }
-    if (previousElement?.classList?.contains("main") && previousElement?.classList?.contains("child")) {
+    if (
+      previousElement?.classList?.contains("main") &&
+      previousElement?.classList?.contains("child")
+    ) {
       previousElement.classList.remove("main");
       previousElement.classList.remove("not-next");
     }

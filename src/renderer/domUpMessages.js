@@ -1,5 +1,5 @@
-import { check_only_img, get_link_data, hexToHSL, output } from "./utils.js";
-import { message_time, message_web } from "./myElement.js";
+import { get_link_data, hexToHSL, output } from "./utils.js";
+import { message_web } from "./myElement.js";
 import { config } from "./config.js";
 import { MsgMutation } from "./setMessage.js";
 
