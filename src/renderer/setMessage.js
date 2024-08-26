@@ -14,6 +14,23 @@ let observe;
 const childMsgHeight = new Map();
 
 function setMessage() {
+  if (!observe && config.setting.message_merging) {
+    observe = new MutationObserver(() => {
+      debounceMsgMutation();
+    });
+    observe.observe(document.querySelector(".ml-list.list"), {
+        childList: true,
+        subtree: true,
+    });
+    // observe.observe(
+    //   document.querySelector(".chat-msg-area .v-scrollbar-thumb"),
+    //   {
+    //     attributes: true,
+    //     attributeFilter: ["style"],
+    //     subtree: false,
+    //   }
+    // );
+  }
   document.querySelectorAll(".bar-icon .q-tooltips").forEach((node) => {
     const content = node?.__VUE__?.[0]?.props?.content;
     if (content && !(content in config.setting.messagebar_list)) {
@@ -70,24 +87,6 @@ function setMessage() {
       injectCkeditor = true;
     }
   }
-  if (!observe && config.setting.message_merging) {
-    observe = new MutationObserver(MsgMutation);
-    observe.observe(document.querySelector(".ml-list.list"), {
-        attributes: true,
-        attributeFilter: ["style"],
-        childList: true,
-        subtree: true,
-    });
-    // observe = new MutationObserver(MsgMutation);
-    // observe.observe(
-    //   document.querySelector(".chat-msg-area .v-scrollbar-thumb"),
-    //   {
-    //     attributes: true,
-    //     attributeFilter: ["style"],
-    //     subtree: false,
-    //   }
-    // );
-  }
 }
 
 function _MsgMutation() {
@@ -114,25 +113,56 @@ function _MsgMutation() {
   });
 }
 
-function MsgMutation() {
+/**
+ * 防抖批量处理当前可见的消息列表
+ */
+const debounceMsgMutation = debounce(_MsgMutation, 10);
+
+/**
+ * 消息刷新监听
+ * @param {MutationRecord[]} mutationsList 
+ */
+function MsgMutation(mutationsList) {
   document.querySelectorAll(".ml-item").forEach((element) => {
+    const previousElement = element.previousElementSibling
+    const nextElement = element.nextElementSibling;
     const targetProps = element.firstElementChild.__VUE__[0].props;
-    if (targetProps.msgRecord.elements[0].grayTipElement === null) {
-      const targetChatType = targetProps.msgRecord.qqpromote?.chatType;
-      const targetSenderUid = targetProps.msgRecord.senderUid;
-      if (targetChatType == "child") {
-        childMsgHeight.set(
-          targetSenderUid,
-          (childMsgHeight.get(targetSenderUid) ?? 0) + element.offsetHeight
-        );
-      } else if (targetChatType == "main") {
-        const avatarSpan = element.querySelector(".avatar-span");
-        avatarSpan.style.height = `${
-          (childMsgHeight.get(targetSenderUid) ?? 0) +
-          element.querySelector(".message-container").offsetHeight
-        }px`;
-        childMsgHeight.delete(targetSenderUid);
-      }
+    const targetSenderUid = targetProps.msgRecord?.senderUid;
+    if (targetProps.msgRecord.elements[0].grayTipElement !== null || !targetSenderUid) return
+    if (!nextElement) {
+      element.classList.add("main");
+      element.classList.add("not-next");
+      element.classList.remove("child");
+      const avatarSpan = element.querySelector(".avatar-span");
+      if (!avatarSpan) return
+      avatarSpan.style.height = `${
+        (childMsgHeight.get(targetSenderUid) ?? 0) +
+        element.querySelector(".message-container").offsetHeight
+      }px`;
+      childMsgHeight.delete(targetSenderUid);
+      return
+    }
+    const nextProps = nextElement.firstElementChild.__VUE__[0].props;
+    if (targetSenderUid === nextProps.msgRecord.senderUid && nextProps.msgRecord.elements[0].grayTipElement === null) {
+      nextElement.classList.remove("main");
+      element.classList.add("child");
+      childMsgHeight.set(
+        targetSenderUid,
+        (childMsgHeight.get(targetSenderUid) ?? 0) + element.offsetHeight
+      );
+    } else {
+      element.classList.add("main");
+      nextElement.classList.remove("child");
+      const avatarSpan = element.querySelector(".avatar-span");
+      avatarSpan.style.height = `${
+        (childMsgHeight.get(targetSenderUid) ?? 0) +
+        element.querySelector(".message-container").offsetHeight
+      }px`;
+      childMsgHeight.delete(targetSenderUid);
+    }
+    if (previousElement?.classList?.contains("main") && previousElement?.classList?.contains("child")) {
+      previousElement.classList.remove("main");
+      previousElement.classList.remove("not-next");
     }
   });
 }

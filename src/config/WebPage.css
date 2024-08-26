@@ -36,12 +36,13 @@
 
 /* 内容 */
 .WebPage .WebPage--content {
-    max-width: var(--message-width);
+    max-width: var(--message-width, 350px);
     position: relative;
     margin-inline-start: .25rem;
     display: -webkit-box;
     -webkit-box-orient: vertical;
     line-clamp: 8;
+    -webkit-line-clamp: 8;
     overflow: hidden;
 }
 
@@ -58,10 +59,28 @@
 
 /* 图片最大宽度 */
 .WebPage .media-photo {
+    max-height: 200px;
     max-width: var(--message-width);
     border-radius: 0.375rem;
 }
 
+.WebPage .media-inner {
+    height: auto;
+    display: flex;
+    flex-direction: row-reverse;
+}
+.WebPage.with-small-photo .media-inner {
+    display: revert;
+    animation: decreaseHeight 0.5s ease-in-out forwards; /* 应用动画 */
+}
+@keyframes decreaseHeight {
+    from {
+        height: var(--photo-height); /* 初始高度 */
+    }
+    to {
+        height: 0px; /* 目标高度 */
+    }
+}
 /* 图片-环绕布局 */
 .WebPage.with-small-photo .media-photo {
     float: right;

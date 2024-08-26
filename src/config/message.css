@@ -55,6 +55,20 @@
 	padding-left: 0px;
 }
 
+.show_time .pic-element {
+    margin-bottom: 0px;
+}
+.show_time .pic-element + .time_img {
+    bottom: 0px;
+}
+.show_time .time_img {
+    position: absolute;
+    bottom: 5px;
+    right: 0px;
+    border-radius: 3.75rem;
+    background-color: rgb(0 0 0 / 35%);
+    padding: 0.1rem 0.3125rem;
+}
 
 
 
@@ -88,7 +102,7 @@ video.qqpromote_video {
 .message_merging .ml-root.q-scroll-view .avatar-span {
     overflow: unset;
 }
-
+/** 消息合并 */
 .message_merging .ml-list.list .message.main .message-container .avatar-span {
 	top: 0px;
     position: absolute;
@@ -108,7 +122,9 @@ video.qqpromote_video {
 .message_merging .ml-list.list .message:not(.main) .user-name {
 	display: none;
 }
-
+.message_merging .ml-list.list .message.main.child .user-name {
+	display: none;
+}
 .message_merging .ml-list.list .message__timestamp {
 	display: none;
 }

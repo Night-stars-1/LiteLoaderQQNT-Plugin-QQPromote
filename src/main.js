@@ -123,7 +123,7 @@ function onBrowserWindowCreated(window) {
                         walletGrayTipElement: null,
                     };
                 }
-                setMsgRecord(msgItem)
+                // setMsgRecord(msgItem)
                 break;
             case "nodeIKernelMsgListener/onRecvActiveMsg":
                 const recvActiveMsgItem = payload.msgList[0]
