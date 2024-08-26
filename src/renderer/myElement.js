@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-19 16:40:54
  *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-26 14:45:48
+ *LastEditTime: 2024-08-26 17:16:46
  */
 const separator_ele = document.createElement("div");
 separator_ele.innerHTML = /*html*/`
@@ -64,10 +64,10 @@ chatgpt_ele.innerHTML = /*html*/`
 
 const message_time = /*html*/`
 <span class="time tgico">
-<span class="i18n" dir="auto">{time}</span>
-<div class="inner tgico" title="{detail_time}">
   <span class="i18n" dir="auto">{time}</span>
-</div>
+  <div class="inner tgico" title="{detail_time}">
+    <span class="i18n" dir="auto">{time}</span>
+  </div>
 </span>
 `
 const message_web = /*html*/`

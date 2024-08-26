@@ -1,7 +1,7 @@
 /*
  * @Date: 2024-01-19 16:49:48
  *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-23 19:40:50
+ *LastEditTime: 2024-08-26 16:59:29
  */
 
 const plugin_path = LiteLoader.plugins.qqpromote.path; // 插件本体的路径
@@ -154,6 +154,51 @@ function hexToRGB(hex) {
     return [r, g, b];
 }
 
+/**
+ * 将 RGB 格式转换为 HSL 格式
+ * @returns 
+ */
+function rgbToHsl(r, g, b) {
+    // 将 RGB 值转换到 0-1 范围
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    // 找到最大值和最小值
+    let max = Math.max(r, g, b);
+    let min = Math.min(r, g, b);
+
+    let h, s, l;
+    l = (max + min) / 2;
+
+    if (max === min) {
+        h = s = 0; // 灰色的情况，色相和饱和度为 0
+    } else {
+        let diff = max - min;
+        s = l > 0.5 ? diff / (2 - max - min) : diff / (max + min);
+
+        switch (max) {
+            case r:
+                h = (g - b) / diff + (g < b ? 6 : 0);
+                break;
+            case g:
+                h = (b - r) / diff + 2;
+                break;
+            case b:
+                h = (r - g) / diff + 4;
+                break;
+        }
+        h /= 6;
+    }
+
+    // 将 h、s、l 转换到 [0, 360], [0, 100], [0, 100] 的范围
+    h = Math.round(h * 360);
+    s = Math.round(s * 100);
+    l = Math.round(l * 100);
+
+    return [h, s, l];
+}
+
 function debounce(func, ms) {
     let timeout;
     return function() {
@@ -171,5 +216,6 @@ export {
     decodeQR,
     hexToHSL,
     hexToRGB,
+    rgbToHsl,
     debounce
 }

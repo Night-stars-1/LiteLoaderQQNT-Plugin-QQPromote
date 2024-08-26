@@ -1,14 +1,47 @@
 import { check_only_img, get_link_data, hexToHSL, output } from "./utils.js";
 import { message_time, message_web } from "./myElement.js";
 import { config } from "./config.js";
+import { MsgMutation } from "./setMessage.js";
 
 let translate_hover;
+
+/**
+ * @param {HTMLElement} node
+ * @param {HTMLElement} img_ele
+ * @param {HTMLElement} web_ele
+ */
+function domUpWebPage(node, img_ele, web_ele) {
+  if (!img_ele) return;
+
+  const message_width = node.querySelector(".message-content").offsetWidth;
+  web_ele.addEventListener("animationstart", function (event) {
+    const MsgMutationInterval = setInterval(MsgMutation, 10);
+    setTimeout(() => {
+      clearInterval(MsgMutationInterval);
+    }, 500);
+  });
+  img_ele.onload = function () {
+    web_ele.style.setProperty(
+      "--message-width",
+      `${message_width >= 300 ? message_width - 10 : 300}px`
+    );
+    web_ele.style.setProperty("--photo-height", `${this.height}px`);
+    if (
+      this.width < message_width / 3 ||
+      Math.abs(this.width - this.height) < 20
+    ) {
+      web_ele.classList.add("with-small-photo");
+    }
+  };
+  img_ele.onerror = function () {
+    img_ele.style.display = "none";
+  };
+}
 
 async function domUpMessages(node) {
   const msgprops = node?.firstElementChild?.__VUE__?.[0]?.props;
   if (!msgprops?.msgRecord || !msgprops.msgRecord?.msgId) return;
   const msgId = msgprops.msgRecord.msgId;
-  const msgTime = msgprops.msgRecord.msgTime;
   const elements = msgprops.msgRecord.elements[0];
   const senderUid = msgprops.msgRecord.senderUid;
   const peer = await LLAPI.getPeer();
@@ -32,8 +65,6 @@ async function domUpMessages(node) {
         });
         const web_ele = web_ele1.lastElementChild;
         const img_ele = web_ele.querySelector(".media-photo");
-        const message_width =
-          node.querySelector(".message-content").offsetWidth;
         const backgroundColor = msgContainer.classList.contains(
           "container--self"
         )
@@ -45,24 +76,7 @@ async function domUpMessages(node) {
           "--WebPage_background-color",
           `hsl(${hsl[0]}deg ${hsl[1]}% ${hsl[2] + 10}% / 25%)`
         );
-        web_ele.style.setProperty(
-          "--message-width",
-          `${message_width >= 300 ? message_width - 10 : 300}px`
-        );
-        if (img_ele) {
-          img_ele.onload = function () {
-            const width = this.width;
-            if (
-              this.width < message_width / 3 ||
-              Math.abs(this.width - this.height) < 20
-            ) {
-              web_ele.classList.add("with-small-photo");
-            }
-          };
-          img_ele.onerror = function () {
-            img_ele.style.display = "none";
-          };
-        }
+        domUpWebPage(node, img_ele, web_ele);
         msgContent.appendChild(web_ele);
       }
     } else {
@@ -102,57 +116,6 @@ async function domUpMessages(node) {
     });
     //msg_text.textContent+=" ".repeat(5)
   }
-  // 消息时间
-  if (
-    config.setting.show_time &&
-    node.querySelector(".msg-content-container")
-  ) {
-    const date = new Date(msgTime * 1000);
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const timestamp = `${hours}:${String(minutes).padStart(2, "0")}`;
-    const msg_content = node.querySelector(
-      ".msg-content-container"
-    ).firstElementChild;
-    if (config.setting.show_time_up) {
-      const user_name = node.querySelector(".user-name");
-      const user_name_time = document.createElement("div");
-      user_name_time.classList.add("user_name_time");
-      user_name_time.innerText = date.toLocaleString();
-      user_name_time.style.color = config.setting.time_color;
-      user_name?.appendChild(user_name_time);
-    } else {
-      //msg_content.style.overflow = "visible";
-      const msg_time_ele1 = document.createElement("div");
-      msg_time_ele1.innerHTML = message_time.format({
-        time: timestamp,
-        detail_time: date.toLocaleString(),
-      });
-      const msg_time_ele = msg_time_ele1.lastElementChild;
-      const msg_content_ele = msg_time_ele.querySelector(".time .inner.tgico");
-      if (!check_only_img(msg_content.children)) {
-        //msg_content.insertAdjacentHTML("beforeend", message_time.format({ time: timestamp, detail_time: date.toLocaleString() }));
-        if (
-          msg_content.children[0].classList.contains("ark-view-message") ||
-          msg_content.children[0].classList.contains("ark-loading")
-        ) {
-          msg_content_ele.style.bottom = "15px";
-          msg_content_ele.style.right = "3px";
-        }
-      } else {
-        msg_time_ele.classList.add("time_img");
-      }
-      const time_inner_ele = msg_time_ele.querySelector(".time .inner");
-      time_inner_ele.style.color = config.setting.time_color;
-      msg_time_ele.addEventListener("click", async (event) => {
-        if (config.setting.repeat_msg_time) {
-          const peer = await LLAPI.getPeer();
-          await LLAPI.forwardMessage(peer, peer, [msgId]);
-        }
-      });
-      msg_content.appendChild(msg_time_ele);
-    }
-  }
   // 自动语音转文字
   const ptt_area = node.querySelector(".ptt-element__bottom-area");
   if (ptt_area && config.setting.auto_ptt2Text) {
@@ -189,4 +152,4 @@ async function domUpMessages(node) {
   }
 }
 
-export { domUpMessages };
+export { domUpMessages, domUpWebPage };

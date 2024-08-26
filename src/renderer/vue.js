@@ -2,11 +2,12 @@
  *Author: Night-stars-1 nujj1042633805@gmail.com
  *Date: 2024-08-23 16:03:37
  *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-26 15:35:20
+ *LastEditTime: 2024-08-26 17:06:39
  */
-import { message_web } from "./myElement.js";
-import { hexToHSL } from "./utils.js";
+import { message_web, message_time } from "./myElement.js";
+import { check_only_img, hexToHSL, rgbToHsl } from "./utils.js";
 import { config } from "./config.js";
+import { domUpWebPage } from "./domUpMessages.js";
 
 const debounceId = [];
 
@@ -34,14 +35,74 @@ function watchComponentMount(component) {
               !debounceId.includes(msgRecord.msgId)
             ) {
               setDebounceId(msgRecord.msgId);
-              if (config.setting.message_merging) {
-                  if (msgRecord?.qqpromote?.chatType == "child") {
-                      node.classList.remove('main')
-                      node.classList.add('child')
-                  } else if (msgRecord?.qqpromote?.chatType == "main") {
-                      node.classList.remove('child')
-                      node.classList.add('main')
+              // 消息时间
+              if (
+                config.setting.show_time &&
+                node.querySelector(".msg-content-container")
+              ) {
+                const msgTime = msgRecord.msgTime;
+                const date = new Date(msgTime * 1000);
+                const hours = date.getHours();
+                const minutes = date.getMinutes();
+                const timestamp = `${hours}:${String(minutes).padStart(
+                  2,
+                  "0"
+                )}`;
+                const msg_content = node.querySelector(
+                  ".msg-content-container"
+                ).firstElementChild;
+                if (config.setting.show_time_up) {
+                  const user_name = node.querySelector(".user-name");
+                  const user_name_time = document.createElement("div");
+                  user_name_time.classList.add("user_name_time");
+                  user_name_time.innerText = date.toLocaleString();
+                  user_name_time.style.color = config.setting.time_color;
+                  user_name?.appendChild(user_name_time);
+                } else {
+                  //msg_content.style.overflow = "visible";
+                  const msg_time_ele1 = document.createElement("div");
+                  msg_time_ele1.innerHTML = message_time.format({
+                    time: timestamp,
+                    detail_time: date.toLocaleString(),
+                  });
+                  const msg_time_ele = msg_time_ele1.lastElementChild;
+                  const msg_content_ele =
+                    msg_time_ele.querySelector(".time");
+                  if (!check_only_img(msg_content.children)) {
+                    //msg_content.insertAdjacentHTML("beforeend", message_time.format({ time: timestamp, detail_time: date.toLocaleString() }));
+                    if (
+                      msg_content.children[0].classList.contains(
+                        "ark-view-message"
+                      ) ||
+                      msg_content.children[0].classList.contains("ark-loading")
+                    ) {
+                      msg_content_ele.style.bottom = "15px";
+                      msg_content_ele.style.right = "3px";
+                    }
+                  } else {
+                    msg_time_ele.classList.add("time_img");
                   }
+                  const time_inner_ele =
+                    msg_time_ele.querySelector(".time .i18n");
+                  time_inner_ele.style.color = config.setting.time_color;
+                  msg_time_ele.addEventListener("click", async (event) => {
+                    if (config.setting.repeat_msg_time) {
+                      const peer = await LLAPI.getPeer();
+                      await LLAPI.forwardMessage(peer, peer, [msgId]);
+                    }
+                  });
+                  msg_content.appendChild(msg_time_ele);
+                }
+              }
+              // 消息合并
+              if (config.setting.message_merging) {
+                if (msgRecord?.qqpromote?.chatType == "child") {
+                  node.classList.remove("main");
+                  node.classList.add("child");
+                } else if (msgRecord?.qqpromote?.chatType == "main") {
+                  node.classList.remove("child");
+                  node.classList.add("main");
+                }
               }
               const url_data = msgRecord?.qqpromote?.linkPreview;
               if (url_data) {
@@ -67,35 +128,19 @@ function watchComponentMount(component) {
                   : getComputedStyle(document.body).getPropertyValue(
                       "--bubble_guest"
                     );
-                let hsl = hexToHSL(backgroundColor);
+                let hsl = [0, 0, 0]
+                if (backgroundColor.includes("rgb")) {
+                  const rgbList = backgroundColor.slice(4, -1).split(", ")
+                  hsl = rgbToHsl(...rgbList)
+                } else {
+                  hsl = hexToHSL(backgroundColor);
+                }
                 hsl = hsl[0] === 0 ? [103, 66, 78] : hsl;
                 web_ele.style.setProperty(
                   "--WebPage_background-color",
                   `hsl(${hsl[0]}deg ${hsl[1]}% ${hsl[2] + 10}% / 25%)`
                 );
-                if (img_ele) {
-                  img_ele.onload = function () {
-                    const message_width =
-                      node.querySelector(".text-element").offsetWidth;
-                    web_ele.style.setProperty(
-                      "--message-width",
-                      `${message_width >= 300 ? message_width - 10 : 300}px`
-                    );
-                    web_ele.style.setProperty(
-                      "--photo-height",
-                      `${this.height}px`
-                    );
-                    if (
-                      this.width < message_width / 3 ||
-                      Math.abs(this.width - this.height) < 20
-                    ) {
-                      web_ele.classList.add("with-small-photo");
-                    }
-                  };
-                  img_ele.onerror = function () {
-                    img_ele.style.display = "none";
-                  };
-                }
+                domUpWebPage(node, img_ele, web_ele);
                 msgContent.appendChild(web_ele);
               }
               const revokeElement =

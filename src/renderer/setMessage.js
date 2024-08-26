@@ -11,13 +11,12 @@ const ckeditorHistory = [];
 const ckedditorIndex2msgId = new Map();
 
 let observe;
-const childMsgHeight = new Map();
+// const childMsgHeight = new Map();
+let childMsgHeight = 0;
 
 function setMessage() {
   if (!observe && config.setting.message_merging) {
-    observe = new MutationObserver(() => {
-      debounceMsgMutation();
-    });
+    observe = new MutationObserver(MsgMutation);
     observe.observe(document.querySelector(".ml-list.list"), {
         childList: true,
         subtree: true,
@@ -89,25 +88,26 @@ function setMessage() {
   }
 }
 
-function _MsgMutation() {
+function MsgMutation() {
   // 遍历每个变化
   document.querySelectorAll(".ml-item").forEach((element) => {
     const targetProps = element.firstElementChild.__VUE__[0].props;
     if (targetProps.msgRecord.elements[0].grayTipElement === null) {
       const targetChatType = targetProps.msgRecord.qqpromote?.chatType;
-      const targetSenderUid = targetProps.msgRecord.senderUid;
+      // const targetSenderUid = targetProps.msgRecord.senderUid;
       if (targetChatType == "child") {
-        childMsgHeight.set(
-          targetSenderUid,
-          (childMsgHeight.get(targetSenderUid) ?? 0) + element.offsetHeight
-        );
+        childMsgHeight += element.offsetHeight;
+        // childMsgHeight.set(
+        //   targetSenderUid,
+        //   (childMsgHeight.get(targetSenderUid) ?? 0) + element.offsetHeight
+        // );
       } else if (targetChatType == "main") {
         const avatarSpan = element.querySelector(".avatar-span");
         avatarSpan.style.height = `${
-          (childMsgHeight.get(targetSenderUid) ?? 0) +
+          childMsgHeight +
           element.querySelector(".message-container").offsetHeight
         }px`;
-        childMsgHeight.delete(targetSenderUid);
+        childMsgHeight = 0;
       }
     }
   });
@@ -116,13 +116,13 @@ function _MsgMutation() {
 /**
  * 防抖批量处理当前可见的消息列表
  */
-const debounceMsgMutation = debounce(_MsgMutation, 10);
+const debounceMsgMutation = debounce(MsgMutation, 10);
 
 /**
  * 消息刷新监听
  * @param {MutationRecord[]} mutationsList 
  */
-function MsgMutation(mutationsList) {
+function _MsgMutation(mutationsList) {
   document.querySelectorAll(".ml-item").forEach((element) => {
     const previousElement = element.previousElementSibling
     const nextElement = element.nextElementSibling;
@@ -171,4 +171,4 @@ onAddSendMsg((_, msgId) => {
   ckedditorIndex2msgId.set(targetCkeditorIndex, msgId);
 });
 
-export { setMessage };
+export { setMessage, MsgMutation };
