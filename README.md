@@ -2,7 +2,7 @@
  * @Author: Night-stars-1 nujj1042633805@gmail.com
  * @Date: 2024-01-09 00:35:34
  * @LastEditors: Night-stars-1 nujj1042633805@gmail.com
- * @LastEditTime: 2024-02-21 19:11:41
+ * @LastEditTime: 2024-08-27 21:02:17
 -->
 # LiteLoaderQQNT-Plugin-RepeatMsg | 复读姬 | QQ增强
 该插件需要安装前置插件[LLAPI](https://github.com/Night-stars-1/LiteLoaderQQNT-Plugin-LLAPI)
@@ -20,7 +20,7 @@
 | 识别二维码         | [CHATGPT协助聊天](#3) | 自动忘记密码           | 聊天栏管理             |
 | [消息显示时间](#2) | [禁止回复自动AT](#3)  | 隐藏未加载的插件       | 顶栏管理               |
 | 时间自定义颜色     | 双击空白回复自动AT    | 本地表情               | [表情屏蔽管理](#6)     |
-| 小程序转卡片       | 自动语音转文字        | 消息合并               | 自定义表情屏蔽提示     |
+| 小程序转卡片       | 自动语音转文字        | [消息合并](#3)               | 自定义表情屏蔽提示     |
 | 屏蔽更新           | [自动登录](#4)        | 输入历史               |                        |
 
 ## 部分功能展示
@@ -38,3 +38,8 @@
 ![](./image/190810.png)
 ### 表情屏蔽管理<a id="6"></a>
 ![](./image/191119.png)
+
+### 消息合并<a id="7"></a>
+
+### 名称内置<a id="8"></a>
+![](./image/191120.png)

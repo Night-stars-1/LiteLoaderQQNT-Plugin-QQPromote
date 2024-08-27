@@ -22,10 +22,15 @@
 }
 
 /* 图片时间 */
-.show_time .time_img {
-    position: absolute;
+.show_time [aria-label="卡片"] .time,
+.show_time .time.time_img {
+	position: absolute;
+    bottom: 0px;
+    right: 1px;
+}
+
+.show_time .time.time_img {
     bottom: 5px;
-    right: 0px;
     border-radius: 3.75rem;
     background-color: rgb(0 0 0 / 35%);
     padding: 0.1rem 0.3125rem;
@@ -108,4 +113,13 @@ video.qqpromote_video {
 
 .message_merging .ml-list.list .message-container {
 	padding: 0px 20px;
+}
+
+.user-name:has(+ .pic-element) {
+	padding: 0px;
+	margin-left: 10px;
+	margin-top: 5px;
+}
+.user-name + .pic-element {
+	margin-top: 0px;
 }

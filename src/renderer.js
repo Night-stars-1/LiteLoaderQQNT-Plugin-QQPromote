@@ -1,155 +1,95 @@
-/*
- * @Date: 2024-01-09 00:35:45
- *LastEditors: Night-stars-1 nujj1042633805@gmail.com
- *LastEditTime: 2024-08-25 15:14:23
- */
-import { domUpMessages } from "./renderer/domUpMessages.js";
-import { changeHref, domUpNavItem } from "./renderer/changeHref.js";
-import { userLogin } from "./renderer/userLogin.js";
-import { setMessage } from "./renderer/setMessage.js";
-import { qMenu } from "./renderer/qMenu.js";
-import { setting_vue } from "./renderer/setVue.js";
-import { hookVue3 } from "./renderer/vue.js";
-import { qGuildMenu } from "./renderer/qGuildMenu.js";
-import { config } from "./renderer/config.js";
-
-const updateStyle = qqpromote.updateStyle;
-const updateWebPageStyle = qqpromote.updateWebPageStyle;
-
-let login_time = 3;
-
-async function onLoad() {
-  console.log(config);
-  config.setting.message_merging
-    ? document.body.classList.add("message_merging")
-    : document.body.classList.remove("message_merging");
-  config.setting.show_time
-    ? document.body.classList.add("show_time")
-    : document.body.classList.remove("show_time");
-  const plugin_path = LiteLoader.plugins.qqpromote.path.plugin;
-  // CSS
-  const css_file_path = `local:///${plugin_path}/src/config/message.css`;
-  const link_element = document.createElement("link");
-  link_element.rel = "stylesheet";
-  link_element.href = css_file_path;
-  document.head.appendChild(link_element);
-  // WebPageCSS
-  const WebPageCSS_file_path = `local:///${plugin_path}/src/config/WebPage.css`;
-  const WebPageCSS_link_element = document.createElement("link");
-  WebPageCSS_link_element.rel = "stylesheet";
-  WebPageCSS_link_element.href = WebPageCSS_file_path;
-  document.head.appendChild(WebPageCSS_link_element);
-  const GlobalCSS_file_path = `local:///${plugin_path}/src/config/global.css`;
-  const GlobalCSS_element = document.createElement("link");
-  GlobalCSS_element.rel = "stylesheet";
-  GlobalCSS_element.href = GlobalCSS_file_path;
-  document.head.appendChild(GlobalCSS_element);
-  updateStyle(() => {
-    link_element.href = `${css_file_path}?r=${new Date().getTime()}`;
-  });
-  updateWebPageStyle(() => {
-    WebPageCSS_link_element.href = `${WebPageCSS_file_path}?r=${new Date().getTime()}`;
-  });
-  // 自动登录和依赖检测
-  const Interval = setInterval(() => {
-    if (
-      location.pathname === "/renderer/login.html" &&
-      config.setting.auto_login
-    ) {
-      const loginBtnText = document.querySelector(".auto-login .q-button span");
-      if (!loginBtnText) {
-        console.log(loginBtnText);
-        clearInterval(Interval);
-        return;
-      }
-      if (login_time >= 0) {
-        loginBtnText.innerText = `${login_time} 秒后自动登录`;
-        login_time--;
-      } else {
-        loginBtnText.click();
-      }
-      return;
-    }
-    if (
-      location.hash !== "#/main/message" &&
-      location.href.indexOf("#/chat/") == -1
-    )
-      return;
-    if (!(LiteLoader?.plugins?.LLAPI?.manifest?.version >= "1.3.1")) {
-      setTimeout(() => {
-        qqpromote
-          .showMessageBox({
-            message: "LLAPI版本过低, 请在插件市场安装最新版",
-            detail: "该提示并非QQ官方提示, 请不要发给官方群",
-            type: "warning",
-            buttons: ["前往插件市场", "确定"],
-          })
-          .then((result) => {
-            if (result.response === 0) {
-              try {
-                StoreAPI.openStore("LLAPI");
-              } catch (error) {
-                qqpromote.showMessageBox({
-                  message: "未安装插件市场",
-                  detail: "该提示并非QQ官方提示, 请不要发给官方群",
-                  type: "warning",
-                  buttons: ["确定"],
-                });
-              }
-            }
-          });
-      }, 1000);
-    }
-    clearInterval(Interval);
-  }, 1000);
-
-  userLogin();
-
-  LLAPI.add_qmenu(qMenu);
-  LLAPI.add_qGuildMenu(qGuildMenu);
-
-  LLAPI.on("dom-up-messages", domUpMessages);
-
-  changeHref(location);
-  LLAPI.on("change_href", changeHref);
-  LLAPI.on("dom-up-nav-item", domUpNavItem);
-
-  LLAPI.on("set_message", setMessage);
-}
-
-async function onSettingWindowCreated(view) {
-  const setting_data = await qqpromote.getSettings();
-  const plugin_path = LiteLoader.plugins.qqpromote.path.plugin;
-  const html_file_path = `local:///${plugin_path}/src/config/view.html`;
-  const css_file_path = `local:///${plugin_path}/src/config/view.css`;
-  const displayCss_file_path = `local:///${plugin_path}/src/config/display.css`;
-  if (setting_data.setting.display_style) {
-    // 插入设置页样式
-    const displayLink = document.createElement("link");
-    displayLink.rel = "stylesheet";
-    displayLink.href = displayCss_file_path;
-    document.head.appendChild(displayLink);
-  }
-  // 插入设置页
-  const htmlText = await (await fetch(html_file_path)).text();
-  view.insertAdjacentHTML("afterbegin", htmlText);
-  // 插入设置页样式
-  const link = document.createElement("link");
-  link.rel = "stylesheet";
-  link.href = css_file_path;
-  document.head.appendChild(link);
-  document.querySelectorAll(".nav-bar.liteloader .nav-item").forEach((node) => {
-    if (node.textContent === "QQ增强") {
-      setting_vue(node);
-    }
-  });
-}
-
-hookVue3();
-if (location.hash === "#/blank") {
-  navigation.addEventListener("navigatesuccess", onLoad, { once: true });
-} else {
-  onLoad();
-}
-
-export { onSettingWindowCreated };
+var ue=LiteLoader.plugins.qqpromote.path,ie=qqpromote.ogs,oe=qqpromote.get_imgbase64;String.prototype.format=function(e){return this.replace(/\{(\w+)\}/g,(t,n)=>e[n]||"")};function R(...e){console.log("\x1B[32m[QQ\u589E\u5F3A-\u6E32\u67D3]\x1B[0m",...e)}function B(e){for(let t of e)if(!t.classList.contains("image"))return!1;return!0}async function z(e){let t={"https://www\\.bilibili\\.com/video/av(\\d+)":"https://api.bilibili.com/x/web-interface/view?aid={key}"};for(let s in t){let a=new RegExp(s),d=e.match(a);if(d)try{let r=d[1],c=t[s].format({key:r}),l=await(await fetch(c)).json(),f={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) QQ/9.9.1-15717 Chrome/114.0.5735.243 Electron/25.3.1 Safari/537.36"},g=await oe(l.data.pic,{headers:f,responseType:"arraybuffer"});return{title:l.data.title,description:l.data.desc,image:g}}catch{return!1}}return await ie(e)}function ae(e){var t=document.createElement("canvas");t.width=e.width,t.height=e.height;var n=t.getContext("2d");n.drawImage(e,0,0,e.width,e.height);var s=t.toDataURL("image/png");return s}async function N(e){return await fetch("https://qrdetector-api.cli.im/v1/detect_binary",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded","User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.183"},body:`image_data=${ae(e)}&remove_background=0`}).then(t=>t.json()).then(t=>t.status==1?t.data.qrcode_content:t.message)}function q(e){let t=parseInt(e.substring(1,3),16)/255,n=parseInt(e.substring(3,5),16)/255,s=parseInt(e.substring(5,7),16)/255,a=Math.max(t,n,s),d=Math.min(t,n,s),r=a-d,c,o,l;return r===0?c=0:a===t?c=60*((n-s)/r%6):a===n?c=60*((s-t)/r+2):c=60*((t-n)/r+4),l=(a+d)/2,r===0?o=0:o=r/(1-Math.abs(2*l-1)),[c,o*100,l*100]}function Q(e,t,n){e/=255,t/=255,n/=255;let s=Math.max(e,t,n),a=Math.min(e,t,n),d,r,c;if(c=(s+a)/2,s===a)d=r=0;else{let o=s-a;switch(r=c>.5?o/(2-s-a):o/(s+a),s){case e:d=(t-n)/o+(t<n?6:0);break;case t:d=(n-e)/o+2;break;case n:d=(e-t)/o+4;break}d/=6}return d=Math.round(d*360),r=Math.round(r*100),c=Math.round(c*100),[d,r,c]}function G(e,t){let n;return function(){let s=this,a=arguments;clearTimeout(n),n=setTimeout(()=>e.apply(s,a),t)}}var re=document.createElement("div");re.innerHTML=`
+<div class="q-context-menu-separator" role="separator"></div>
+`;var A=document.createElement("div");A.innerHTML=`
+<a 
+ id="repeatmsg"
+ class="q-context-menu-item q-context-menu-item--normal" 
+ aria-disabled="false" 
+ role="menuitem" 
+ tabindex="-1">
+  <div class="q-context-menu-item__icon q-context-menu-item__head">
+    <i class="q-icon" data-v-717ec976="" style="--b4589f60: inherit; --6ef2e80d: 16px;">
+    <svg t="1691421273840" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1478" xmlns:xlink="http://www.w3.org/1999/xlink" height="1em" fill="currentColor"><path d="M511.6 961.4c12.1 0 22.6-4.4 31.5-13.3s13.3-19.4 13.3-31.5V558.3h358.3c12.1 0 22.6-4.4 31.5-13.3s13.3-19.4 13.3-31.5c0-12.1-4.4-22.6-13.3-31.5s-19.4-13.3-31.5-13.3H556.4V110.3c0-12.1-4.4-22.6-13.3-31.5s-19.4-13.3-31.5-13.3c-12.1 0-22.6 4.4-31.5 13.3s-13.3 19.4-13.3 31.5v358.3H108.5c-12.1 0-22.6 4.4-31.5 13.3s-13.3 19.4-13.3 31.5c0 12.1 4.4 22.6 13.3 31.5s19.4 13.3 31.5 13.3h358.3v358.3c0 12.1 4.4 22.6 13.3 31.5s19.4 13.4 31.5 13.4z" p-id="1479"></path></svg>
+    </i>
+  </div>
+  <!---->
+  <span class="q-context-menu-item__text">+1</span>
+  <!---->
+</a>
+`;var C=document.createElement("div");C.innerHTML=`
+<a 
+ id="qrcode"
+ class="q-context-menu-item q-context-menu-item--normal" 
+ aria-disabled="false" 
+ role="menuitem" 
+ tabindex="-1">
+  <div class="q-context-menu-item__icon q-context-menu-item__head">
+    <i class="q-icon" data-v-717ec976="" style="--b4589f60: inherit; --6ef2e80d: 16px;">
+    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512" fill="currentColor"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M0 80C0 53.5 21.5 32 48 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V80zM64 96v64h64V96H64zM0 336c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V336zm64 16v64h64V352H64zM304 32h96c26.5 0 48 21.5 48 48v96c0 26.5-21.5 48-48 48H304c-26.5 0-48-21.5-48-48V80c0-26.5 21.5-48 48-48zm80 64H320v64h64V96zM256 304c0-8.8 7.2-16 16-16h64c8.8 0 16 7.2 16 16s7.2 16 16 16h32c8.8 0 16-7.2 16-16s7.2-16 16-16s16 7.2 16 16v96c0 8.8-7.2 16-16 16H368c-8.8 0-16-7.2-16-16s-7.2-16-16-16s-16 7.2-16 16v64c0 8.8-7.2 16-16 16H272c-8.8 0-16-7.2-16-16V304zM368 480a16 16 0 1 1 0-32 16 16 0 1 1 0 32zm64 0a16 16 0 1 1 0-32 16 16 0 1 1 0 32z"/></svg>
+    </i>
+  </div>
+  <!---->
+  <span class="q-context-menu-item__text">\u8BC6\u522B\u4E8C\u7EF4\u7801</span>
+  <!---->
+</a>
+`;var M=document.createElement("div");M.innerHTML=`
+<a 
+ id="chatgpt"
+ class="q-context-menu-item q-context-menu-item--normal" 
+ aria-disabled="false" 
+ role="menuitem" 
+ tabindex="-1">
+  <div class="q-context-menu-item__icon q-context-menu-item__head">
+    <i class="q-icon" data-v-717ec976="" style="--b4589f60: inherit; --6ef2e80d: 16px;">
+    <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" fill="currentColor"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M160 368c26.5 0 48 21.5 48 48v16l72.5-54.4c8.3-6.2 18.4-9.6 28.8-9.6H448c8.8 0 16-7.2 16-16V64c0-8.8-7.2-16-16-16H64c-8.8 0-16 7.2-16 16V352c0 8.8 7.2 16 16 16h96zm48 124l-.2 .2-5.1 3.8-17.1 12.8c-4.8 3.6-11.3 4.2-16.8 1.5s-8.8-8.2-8.8-14.3V474.7v-6.4V468v-4V416H112 64c-35.3 0-64-28.7-64-64V64C0 28.7 28.7 0 64 0H448c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H309.3L208 492z"/></svg>
+    </i>
+  </div>
+  <!---->
+  <span class="q-context-menu-item__text">CHATGPT</span>
+  <!---->
+</a>
+`;var D=`
+<span class="time tgico">
+  <span class="i18n" dir="auto">{time}</span>
+  <div class="inner tgico" title="{detail_time}">
+    <span class="i18n" dir="auto">{time}</span>
+  </div>
+</span>
+`,x=`
+<div class="WebPage">
+  <div class="WebPage--content">
+    <div class="media-inner interactive">
+      <img class="media-photo" src="{img}">
+    </div>
+    <div class="WebPage-text">
+      <div class="site-title">
+        <strong dir="auto">{title}</strong>
+      </div>
+      <div class="site-description" dir="auto">{description}</div>
+    </div>
+  </div>
+</div>
+`;var i=await qqpromote.getSettings();async function b(e){qqpromote.setSettings(JSON.stringify(e))}qqpromote.updateSettings((e,t)=>{i.setting=JSON.parse(t).setting});var ce=qqpromote.onAddSendMsg,F=!1,h=0,O=0,k="",v=[],le=new Map,T,H=0;function j(){if(!T&&i.setting.message_merging&&(T=new MutationObserver(I),T.observe(document.querySelector(".chat-msg-area .v-scrollbar-thumb"),{attributes:!0,attributeFilter:["style"],subtree:!1})),document.querySelectorAll(".bar-icon .q-tooltips").forEach(e=>{let t=e?.__VUE__?.[0]?.props?.content;t&&!(t in i.setting.messagebar_list)&&(i.setting.messagebar_list[t]=!1,b(i)),i.setting.messagebar_list[t]&&e.parentNode.remove()}),i.setting.ckeditor_history){let e=document.querySelector(".chat-input-area"),t=e.querySelector(".ck.ck-content.ck-editor__editable"),n=e.querySelector(".send-msg"),s=t?.ckeditorInstance;if(h=v.length,!F&&s&&n){async function a(r){let c=LLAPI.get_editor();(r.key==="Enter"||r.type==="click")&&c&&(k="",v.push(c),h=v.length,O=v.length-1)}async function d(r){let c=LLAPI.get_editor();r.key==="ArrowUp"?(h>0&&h--,LLAPI.set_editor(v[h])):r.key==="ArrowDown"?h<v.length-1?(h++,LLAPI.set_editor(v[h])):(h<v.length&&h++,LLAPI.set_editor(k)):k=c}t.addEventListener("keydown",a),t.addEventListener("keyup",d),n.addEventListener("click",a),F=!0}}}function I(){document.querySelectorAll(".ml-item").forEach(e=>{try{let t=e.querySelector(".avatar-span");t&&(H+=e.firstElementChild.offsetHeight,e.firstElementChild.classList.contains("main")&&(t.style.height=`${H}px`,H=0))}catch(t){console.log(t)}})}var ye=G(I,10);ce((e,t)=>{le.set(O,t)});var S;function V(e,t,n){if(!t)return;let s=e.querySelector(".message-content").offsetWidth;n.addEventListener("animationstart",function(a){let d=setInterval(I,10);setTimeout(()=>{clearInterval(d)},500)}),t.onload=function(){n.style.setProperty("--message-width",`${s>=300?s-10:300}px`),n.style.setProperty("--photo-height",`${this.height}px`),(this.width<s/3||Math.abs(this.width-this.height)<20)&&n.classList.add("with-small-photo")},t.onerror=function(){t.style.display="none"}}async function K(e){let t=e?.firstElementChild?.__VUE__?.[0]?.props;if(!t?.msgRecord||!t.msgRecord?.msgId)return;let n=t.msgRecord.msgId,s=t.msgRecord.elements[0],a=t.msgRecord.senderUid,d=await LLAPI.getPeer(),r=await LLAPI.getFriendsList(),c=e.querySelector(".text-link"),o=e.querySelector(".WebPage");if(c&&i.setting.link_preview)if(o){let g=e.querySelector(".message-content").offsetWidth;o.style.setProperty("--message-width",`${g>=300?g-10:300}px`)}else{let g=c.innerText,m=await z(g);if(m){let p=e.querySelector(".msg-content-container"),u=p.firstElementChild;u.style.overflow="visible";let _=document.createElement("div");_.innerHTML=x.format({img:m.image?.replace("i0.hdslb.com","i1.hdslb.com"),title:m.title,description:m.description});let y=_.lastElementChild,W=y.querySelector(".media-photo"),w=p.classList.contains("container--self")?getComputedStyle(document.body).getPropertyValue("--bubble_host"):getComputedStyle(document.body).getPropertyValue("--bubble_guest"),L=q(w);L=L[0]===0?[103,66,78]:L,y.style.setProperty("--WebPage_background-color",`hsl(${L[0]}deg ${L[1]}% ${L[2]+10}% / 25%)`),V(e,W,y),u.appendChild(y)}}let l=e.querySelector(".text-normal");if(l){let g=function(m){let p=m.target.textContent;S=setInterval(async()=>{let u=await qqpromote.translate(p,i.setting),_=document.createElement("div");_.innerText=u?.TargetText,m.target.closest(".message-content.mix-message__inner").appendChild(_),clearInterval(S),l.removeEventListener("mouseover",g)},1e3)};i.setting.translate?l.addEventListener("mouseover",g):l.removeEventListener("mouseover",g),l.addEventListener("mouseout",m=>{S&&clearInterval(S)})}let f=e.querySelector(".ptt-element__bottom-area");if(f&&i.setting.auto_ptt2Text&&(f.closest(".message-container--self")||(await LLAPI.Ptt2Text(n,d,s),f.style.display="block")),i.setting.reply_at&&i.setting.reply_at_click&&e.querySelector(".message-container")?.addEventListener("click",async()=>{let m=setInterval(async()=>{(await LLAPI.get_editor()).includes("</msg-at>")&&(clearInterval(m),LLAPI.del_editor("msg-at",!0))});setTimeout(()=>clearInterval(m),50)}),i.setting.friendsinfo&&e.querySelector(".msg-content-container")){let g=r.find(u=>u.uid===a),m=`<${g.raw.remark?g.raw.remark:g.nickName}>(${g.uin})`,p=e.querySelector(".user-name .text-ellipsis");p.textContent=p.textContent+m}}async function Z(e){i.setting.video_background[e.hash]?.value&&!document.querySelector(".qqpromote_video")&&(document.body.insertAdjacentHTML("afterbegin",`
+            <video class="qqpromote_video" autoplay muted loop>
+                <source src="https://t.mwm.moe/acg/acg" type="video/mp4">
+            </video>
+            
+        `),document.querySelector("#app").style=`
+            --bg_list: none!important;
+            --bg_bottom_light: rgba(255,255,255,0.35)!important;
+            --bg_top_light: rgba(255,255,255,0.35)!important;
+            --bg_bottom_standard: rgba(255,255,255,0.35)!important;
+            --fill_light_primary: rgba(255,255,255,0.35)!important;
+            --nt_bg_white_2_overlay_hover_2_mix: rgba(255,255,255,0.35)!important; /* \u804A\u5929\u6846\u6587\u4EF6\u7C7B */
+            --blur_middle_standard: none!important; /* \u53F3\u4E0B\u8BBE\u7F6E\u9009\u62E9\u6846 */
+        `)}function $(e){switch(e.hash){case"#/main/message":document.querySelectorAll(".sidebar__menu .func-menu__item").forEach(n=>{let s=n.firstElementChild.getAttribute("aria-label");s&&!(s in i.setting.sidebar_list)&&(i.setting.sidebar_list[s]=!1,b(i)),i.setting.sidebar_list[s]&&n.remove()}),document.querySelectorAll(".window-control-area div").forEach(n=>{let s=n.lastElementChild?.__VUE__?.[0]?.type?.name;switch(s){case"QIconSwitchPanel16":i.setting.upbar_list.\u6298\u53E0\u680F&&n.remove(),"\u6298\u53E0\u680F"in i.setting.upbar_list||(i.setting.upbar_list.\u6298\u53E0\u680F=!1,b(i));break;default:R("\u672A\u77E5\u680F",s);break}});break;case"#/image-viewer":if(!i.setting.image_other_close)break;let t=setInterval(()=>{let n=document.querySelector(".main-area__image-rotate-wrap");if(!n)return;clearInterval(t);let s=document.createElement("div");s.classList.add("close-image"),s.addEventListener("click",a=>{document.querySelector(".close").click()}),n.appendChild(s)},1e3);break}Z(e)}function J(e){let t=e.getAttribute("aria-label");t&&!t.endsWith("\u672A\u8BFB")&&!(t in i.setting.sidebar_list)&&(i.setting.sidebar_list[t]=!1,b(i)),i.setting.sidebar_list[t]&&e.remove()}var E=!1;function X(){if(E){let e=setInterval(async()=>{let t=await LLAPI.getAccountInfo();t.uin&&(clearInterval(e),LLAPI.resetLoginInfo(t.uin))},100)}}function Y(){if(location.pathname==="/renderer/login.html"){let e=document.querySelector(".draggable-view__container.login-container"),t=document.createElement("label");t.title="\u5FD8\u8BB0\u5BC6\u7801",t.classList.add("q-checkbox"),t.innerHTML=`
+        <input type="checkbox">
+        <span class="q-checkbox__input">
+        </span>
+        `,t.style=`
+            app-region: no-drag;
+            padding-top: 6px;
+            position: absolute;
+            left: 8px;
+            z-index: 99;
+        `,document.addEventListener("keydown",n=>{n.key==="Enter"&&X()}),document.querySelector(".login-btn")?.addEventListener("click",X),t.querySelector(".q-checkbox__input").addEventListener("click",async n=>{let s=n.target.parentElement;E=!E,s.classList.toggle("is-checked",E)}),e.insertBefore(t,e.firstChild)}LLAPI.on("user-login",async e=>{i.setting.resetLogin&&LLAPI.resetLoginInfo(e.uin)})}var de=qqpromote.chatgpt;async function ee(e,t){let{classList:n}=t,s=t?.closest(".msg-content-container")?.closest(".message")?.__VUE__?.[0]?.props,a=s?.uid,d=s?.msgRecord.msgId,r=s?.msgRecord.senderUid,c=t?.innerText;if(i.setting.repeat_msg){let o=A.cloneNode(!0);o.addEventListener("click",async()=>{let l=await LLAPI.getPeer();if(n[0]=="ptt-element__progress"){let g=(await LLAPI.getPreviousMessages(l,1,d.toString()))[0].elements;await LLAPI.sendMessage(l,g)}else await LLAPI.forwardMessage(l,l,[d]);e.remove()}),i.setting.rpmsg_location?e.insertBefore(o,e.firstChild):e.appendChild(o)}if(i.setting.chatgpt){let o=M.cloneNode(!0);o.addEventListener("click",async()=>{let l=await de(c,i.setting);i.setting.chatgpt_add_reply?(await LLAPI.set_editor(l),e.childNodes.forEach(f=>{f.textContent==="\u56DE\u590D"&&f.click()})):(await LLAPI.set_editor(l),e.remove())}),i.setting.chatgpt_location?e.insertBefore(o,e.firstChild):e.appendChild(o)}if(i.setting.qrcode){let o=C.cloneNode(!0);o.addEventListener("click",async()=>{e.remove();let l=await N(t);qqpromote.showQrContent(l)}),n?.[0]==="image-content"&&e.insertBefore(o,e.firstChild)}e.childNodes.forEach(o=>{o.textContent==="\u56DE\u590D"&&r!=a&&i.setting.reply_at&&o.addEventListener("click",async()=>{let l=setInterval(async()=>{(await LLAPI.get_editor()).includes("</msg-at>")&&(clearInterval(l),LLAPI.del_editor("msg-at",!0))});setTimeout(()=>clearInterval(l),50)})})}var P=[];function me(e){P.push(e),setTimeout(()=>{P.splice(P.indexOf(e),1)},100)}function ge(e){e.vnode.props?.["msg-record"]&&(e.vnode=new Proxy(e.vnode,{get(t,n){try{if(n==="el"){let s=t[n],a=t.props["msg-record"];if(s&&s.classList.contains("message")&&!P.includes(a.msgId)){me(a.msgId);let d=s.querySelector(".msg-content-container");if(!d)return t[n];let r=d.firstElementChild;if(i.setting.show_time&&!s.querySelector(".time.tgico")){let o=a.msgTime,l=new Date(o*1e3),f=l.getHours(),g=l.getMinutes(),m=`${f}:${String(g).padStart(2,"0")}`;if(i.setting.show_time_up){let p=s.querySelector(".user-name"),u=document.createElement("div");u.classList.add("user_name_time"),u.innerText=l.toLocaleString(),u.style.color=i.setting.time_color,p?.appendChild(u)}else{let p=document.createElement("div");p.innerHTML=D.format({time:m,detail_time:l.toLocaleString()});let u=p.lastElementChild,_=u.querySelector(".time");B(r.children)?u.classList.add("time_img"):(r.children[0].classList.contains("ark-view-message")||r.children[0].classList.contains("ark-loading"))&&(_.style.bottom="15px",_.style.right="3px");let y=u.querySelector(".time .i18n");y.style.color=i.setting.time_color,u.addEventListener("click",async W=>{if(i.setting.repeat_msg_time){let w=await LLAPI.getPeer();await LLAPI.forwardMessage(w,w,[a.msgId])}}),r.appendChild(u)}}i.setting.message_merging&&(a?.qqpromote?.chatType=="child"?(s.classList.remove("main"),s.classList.add("child")):a?.qqpromote?.chatType=="main"&&(s.classList.remove("child"),s.classList.add("main")));let c=a?.qqpromote?.linkPreview;if(c){r.style.overflow="visible";let o=document.createElement("div");o.innerHTML=x.format({img:c.image?.replace("i0.hdslb.com","i1.hdslb.com"),title:c.title,description:c.description});let l=o.lastElementChild,f=l.querySelector(".media-photo"),g=d.classList.contains("container--self")?getComputedStyle(document.body).getPropertyValue("--bubble_host"):getComputedStyle(document.body).getPropertyValue("--bubble_guest"),m=[0,0,0];if(g.includes("rgb")){let p=g.slice(4,-1).split(", ");m=Q(...p)}else m=q(g);m=m[0]===0?[103,66,78]:m,l.style.setProperty("--WebPage_background-color",`hsl(${m[0]}deg ${m[1]}% ${m[2]+10}% / 25%)`),V(s,f,l),r.appendChild(l)}if(i.setting.message_user_name_built_in){let o=s.querySelector(".user-name");r.insertBefore(o,r.firstChild)}}}}catch(s){console.error(s)}return t[n]}}))}function te(){window.Proxy=new Proxy(window.Proxy,{construct(e,[t,n]){let s=t?._;return s?.uid>=0&&(s.vnode.el??ge(s)),new e(t,n)}})}async function se(e,t){e.childNodes.forEach(n=>{n.textContent.replaceAll(" ","")==="\u56DE\u590D"&&i.setting.reply_at&&n.addEventListener("click",()=>{let s=setInterval(()=>{LLAPI.get_editor().includes("</msg-at>")&&(clearInterval(s),LLAPI.del_editor("msg-at",!0))});setTimeout(()=>clearInterval(s),50)})})}var U=3;async function ne(){console.log(i),i.setting.message_merging?document.body.classList.add("message_merging"):document.body.classList.remove("message_merging"),i.setting.show_time?document.body.classList.add("show_time"):document.body.classList.remove("show_time");let e=LiteLoader.plugins.qqpromote.path.plugin,t=`local:///${e}/src/config/message.css`,n=document.createElement("link");n.rel="stylesheet",n.href=t,document.head.appendChild(n);let s=`local:///${e}/src/config/WebPage.css`,a=document.createElement("link");a.rel="stylesheet",a.href=s,document.head.appendChild(a);let d=`local:///${e}/src/config/global.css`,r=document.createElement("link");r.rel="stylesheet",r.href=d,document.head.appendChild(r),qqpromote.updateStyle(()=>{n.href=`${t}?r=${new Date().getTime()}`}),qqpromote.updateWebPageStyle(()=>{a.href=`${s}?r=${new Date().getTime()}`});let c=setInterval(()=>{if(location.pathname==="/renderer/login.html"&&i.setting.auto_login){let o=document.querySelector(".auto-login .q-button span");if(!o){console.log(o),clearInterval(c);return}U>=0?(o.innerText=`${U} \u79D2\u540E\u81EA\u52A8\u767B\u5F55`,U--):o.click();return}location.hash!=="#/main/message"&&location.href.indexOf("#/chat/")==-1||(LiteLoader?.plugins?.LLAPI?.manifest?.version>="1.3.1"||setTimeout(()=>{qqpromote.showMessageBox({message:"LLAPI\u7248\u672C\u8FC7\u4F4E, \u8BF7\u5728\u63D2\u4EF6\u5E02\u573A\u5B89\u88C5\u6700\u65B0\u7248",detail:"\u8BE5\u63D0\u793A\u5E76\u975EQQ\u5B98\u65B9\u63D0\u793A, \u8BF7\u4E0D\u8981\u53D1\u7ED9\u5B98\u65B9\u7FA4",type:"warning",buttons:["\u524D\u5F80\u63D2\u4EF6\u5E02\u573A","\u786E\u5B9A"]}).then(o=>{if(o.response===0)try{StoreAPI.openStore("LLAPI")}catch{qqpromote.showMessageBox({message:"\u672A\u5B89\u88C5\u63D2\u4EF6\u5E02\u573A",detail:"\u8BE5\u63D0\u793A\u5E76\u975EQQ\u5B98\u65B9\u63D0\u793A, \u8BF7\u4E0D\u8981\u53D1\u7ED9\u5B98\u65B9\u7FA4",type:"warning",buttons:["\u786E\u5B9A"]})}})},1e3),clearInterval(c))},1e3);Y(),LLAPI.add_qmenu(ee),LLAPI.add_qGuildMenu(se),LLAPI.on("dom-up-messages",K),$(location),LLAPI.on("change_href",$),LLAPI.on("dom-up-nav-item",J),LLAPI.on("set_message",j)}async function tt(){let e=await qqpromote.getSettings(),t=LiteLoader.plugins.qqpromote.path.plugin,n=`local:///${t}/src/config/view.css`,s=`local:///${t}/src/config/display.css`;if(e.setting.display_style){let c=document.createElement("link");c.rel="stylesheet",c.href=s,document.head.appendChild(c)}let a=document.createElement("link");a.rel="stylesheet",a.href=n,document.head.appendChild(a);let d=document.querySelector(`.nav-bar.liteloader .nav-item[data-slug='${LiteLoader.plugins.qqpromote.manifest.slug}']`);d.querySelector(".q-icon.icon").insertAdjacentHTML("afterbegin",'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v1.5A1.75 1.75 0 0 1 14.25 6H1.75A1.75 1.75 0 0 1 0 4.25ZM1.75 7a.75.75 0 0 1 .75.75v5.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-5.5a.75.75 0 0 1 1.5 0v5.5A1.75 1.75 0 0 1 13.25 15H2.75A1.75 1.75 0 0 1 1 13.25v-5.5A.75.75 0 0 1 1.75 7Zm0-4.5a.25.25 0 0 0-.25.25v1.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-1.5a.25.25 0 0 0-.25-.25ZM6.25 8h3.5a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1 0-1.5Z"></path></svg>'),d.addEventListener("click",async()=>{let c=document.createElement("link");c.rel="stylesheet",c.href=`local:///${t}/src/assets/css/main.css`,document.head.appendChild(c);let o=document.createElement("script");o.type="module",o.src=`local:///${t}/src/assets/js/main.js`,document.head.appendChild(o)})}te();location.hash==="#/blank"?navigation.addEventListener("navigatesuccess",ne,{once:!0}):ne();export{tt as onSettingWindowCreated};
